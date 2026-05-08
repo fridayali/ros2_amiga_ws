@@ -1,0 +1,20 @@
+scan_filter_chain:
+
+  # 1. Range filter: çok yakın (gürültü) ve çok uzak ölçümleri çıkar
+  - name: range_filter
+    type: laser_filters/LaserScanRangeFilter
+    params:
+      use_message_range_limits: false
+      lower_threshold: 0.15      # metre — daha yakın okumalar NaN yapılır
+      upper_threshold: 25.0      # metre — daha uzak okumalar NaN yapılır
+      lower_replacement_value: -.inf
+      upper_replacement_value: .inf
+
+  # 2. Açısal sınır filtresi: robotun kendi gövdesini görecek bölgeyi mask'le
+  # laser_link x=0.5'te (ön-orta), robot gövdesi arkada kalıyor.
+  # -135° … +135° bandını tut, arka ±45°'yi (±2.356 rad dışını) maskele.
+  - name: angular_bounds
+    type: laser_filters/LaserScanAngularBoundsFilterInPlace
+    params:
+      lower_angle: -2.356   # -135 derece
+      upper_angle:  2.356   #  135 derece

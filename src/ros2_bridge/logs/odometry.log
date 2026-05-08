@@ -1,0 +1,177 @@
+[INFO] [1777621174.107546864] [odometry_publisher]: Listening to: path: "/twist"
+query: "service_name=canbus"
+
+[INFO] [1777621174.189399561] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621174.260916359] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621174.337915581] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621174.474755380] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621174.524785367] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621174.585860933] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621174.658250527] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621174.735010324] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621174.805150060] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621174.879939285] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621174.942014951] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.039745301] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.094236780] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.162173836] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.254516811] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.346453824] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.429490536] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.475629697] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.552474324] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.621916808] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.695942091] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.772158787] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.841447134] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621175.923716875] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.007875573] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.089100392] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.153007513] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.223191846] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.304370231] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.366999275] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.432405581] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.520647780] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.604749079] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.668955042] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.744349954] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.819051784] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.891703522] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621176.971920720] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.035349096] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.124262981] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.181524700] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.343656183] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.352305729] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.403576827] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.477413846] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.567090818] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.641302981] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.718020544] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.810326718] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.903589630] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621177.946460175] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.013356008] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.081263062] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.162482983] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.243225256] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.304920121] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.391840728] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.528659388] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.551429022] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.611943138] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.695422413] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.835555328] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.839354393] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.918938259] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621178.981991304] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.060075209] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.136890465] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.219150034] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.278344648] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.360923206] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.439262948] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.510951395] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.576723877] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.669131281] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.812020146] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.814416703] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621179.919770731] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.179261562] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.218300911] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.219912305] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.221506824] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.302414390] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.336009107] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.410989914] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.475438645] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.549390096] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.650777157] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.704126080] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.778695307] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.872110690] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.930803014] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621180.992815091] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.103662348] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.158943030] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.229551051] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.289944578] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.403346515] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.465899822] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.555030891] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.631963974] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.676364423] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.791012363] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.850373358] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621181.907698848] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.085707831] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.130176852] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.165334323] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.234439257] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.323746858] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.388350675] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.446174241] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.543504314] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.588470572] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.680669285] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.723645197] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.847354825] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621182.906161320] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.004693645] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.071759563] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.132055949] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.216760797] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.285531223] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.375740269] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.452819447] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.521941920] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.715715932] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.718884724] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.744272592] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.845506080] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621183.899156070] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.061935552] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.071240925] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.104072010] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.203566506] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.236237757] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.279600846] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.356840725] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.468463942] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.580855745] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.595927681] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.779184257] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+[INFO] [1777621184.782755084] [odometry_publisher]: 📡 linear_velocity_x: 0.000 m/s | angular_velocity: 0.000 rad/s
+Traceback (most recent call last):
+  File "/home/cuma_karaaslan/ros2_amiga_ws/src/ros2_bridge/src/odometry.py", line 95, in main
+    asyncio.run(node.run())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/cuma_karaaslan/ros2_amiga_ws/src/ros2_bridge/src/odometry.py", line 60, in run
+    self.pub.publish(odom_msg)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/publisher.py", line 70, in publish
+    self.__publisher.publish(msg)
+rclpy._rclpy_pybind11.RCLError: Failed to publish: publisher's context is invalid, at ./src/rcl/publisher.c:423
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/cuma_karaaslan/ros2_amiga_ws/src/ros2_bridge/src/odometry.py", line 104, in <module>
+    main()
+  File "/home/cuma_karaaslan/ros2_amiga_ws/src/ros2_bridge/src/odometry.py", line 100, in main
+    rclpy.shutdown()
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 134, in shutdown
+    _shutdown(context=context)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py", line 82, in shutdown
+    context.shutdown()
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py", line 129, in shutdown
+    self.__context.shutdown()
+rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333

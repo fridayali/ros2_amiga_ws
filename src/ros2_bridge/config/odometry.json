@@ -1,0 +1,15 @@
+{
+    "name": "canbus",
+    "port": 6001,
+    "host": "10.10.10.117",
+    "log_level": "INFO",
+    "subscriptions": [
+        {
+            "uri": {
+                "path": "/twist",
+                "query": "service_name=canbus"
+            },
+            "every_n": 1
+        }
+    ]
+}

@@ -1,0 +1,58 @@
+{
+  "configs": [
+    {
+      "name": "canbus",
+      "port": 6001,
+      "host": "10.10.10.117"
+    },
+    {
+      "name": "filter",
+      "port": 20001,
+      "host": "10.10.10.117"
+    },
+    {
+    "name": "gps",
+    "port": 50010,
+    "host": "10.10.10.117"
+    },
+    {
+    "name": "track_follower",
+    "port": 20101,
+    "host": "10.10.10.117"
+
+    },
+    {
+      "name": "multi_subscriber",
+      "subscriptions": [
+        {
+          "uri": {
+            "path": "*",
+            "query": "service_name=canbus"
+          },
+          "every_n": 1
+        },
+        {
+          "uri": {
+            "path": "*",
+            "query": "service_name=filter"
+          },
+          "every_n": 1
+        },
+        {
+          "uri": {
+            "path": "*",
+            "query":"service_name=gps"
+          },
+          "every_n":1
+        },
+        {
+          "uri": {
+            "path": "*",
+            "query":"service_name=track_follower"
+          },
+          "every_n":1
+        }
+      ]
+    }
+  ]
+}

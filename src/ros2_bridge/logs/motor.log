@@ -1,0 +1,308 @@
+[INFO] [1777621174.268781168] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621174.269840978] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621174.365881240] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621174.366903732] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621174.521451341] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621174.522116557] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621174.613134800] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621174.613776000] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621174.719993799] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621174.721147189] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621174.830217161] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621174.831224293] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621174.939588283] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621174.941051039] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621175.064416647] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621175.065534077] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621175.158032244] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621175.158999734] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621175.280925886] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621175.281773792] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621175.429305087] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621175.430984922] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621175.491826198] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621175.492837964] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621175.587315503] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621175.588328552] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621175.713081220] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621175.714069914] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621175.805862024] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621175.806686840] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621175.922916127] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621175.923632697] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621176.058148848] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621176.059683331] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621176.152007271] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621176.152883315] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621176.297886045] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621176.299497588] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621176.394442260] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621176.395436449] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621176.497911442] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621176.499082188] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621176.623703746] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621176.625130572] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621176.701801377] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 16]
+[INFO] [1777621176.702747942] [motor_state_publisher]: Published battery state with average temperature: 14.25°C and average voltage: 49.90625V
+[INFO] [1777621176.819317826] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621176.820109406] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621176.927859339] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621176.928820290] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621177.035594036] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621177.036499223] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621177.167793030] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621177.168783025] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621177.315357828] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621177.316141976] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621177.428528040] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621177.429217482] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621177.537703084] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621177.539416180] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621177.670468500] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621177.671600596] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621177.809604866] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621177.810783380] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.9140625V
+[INFO] [1777621177.943489209] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621177.944146008] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621178.040751873] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621178.042190543] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621178.134997271] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621178.136245038] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621178.244534869] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621178.245426704] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621178.364182330] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621178.365209138] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621178.515546079] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621178.516598735] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621178.636244723] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621178.637365165] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621178.828933506] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621178.829731859] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621178.929956305] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621178.930709521] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621179.046522608] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621179.047692626] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621179.135912095] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621179.137057564] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621179.276139743] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621179.277239837] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621179.374220802] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621179.375314161] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621179.490816451] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621179.491933464] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621179.602548107] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621179.603459366] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621179.735254326] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621179.736189701] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621179.919172818] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621179.920243162] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621180.178961574] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621180.179934080] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621180.217883912] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621180.218621081] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621180.220252434] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621180.220929482] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621180.305699848] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621180.306403965] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621180.410661239] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621180.411351648] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621180.517813200] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621180.520473203] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621180.650384497] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621180.651104666] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621180.746748198] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621180.748020745] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621180.869007902] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621180.870536133] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621180.983915031] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621180.984635733] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621181.080734148] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621181.081595529] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621181.170839140] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621181.171641515] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621181.273860247] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621181.274950592] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621181.416924835] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621181.417803974] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621181.544271700] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621181.544955187] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621181.661814761] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621181.662783403] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621181.790733103] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621181.791644132] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621181.895524662] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621181.896172698] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621182.066351715] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621182.067366749] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621182.176809534] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621182.177694764] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621182.303144289] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621182.303920610] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621182.404583568] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621182.405596630] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621182.515658851] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621182.516507086] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621182.597410985] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621182.598216061] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621182.716058678] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621182.716992197] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621182.854861450] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621182.855679510] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621182.968675399] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621182.970034454] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621183.078247591] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621183.079412768] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621183.177549492] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621183.178257214] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621183.284775532] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621183.285862625] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621183.414744076] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621183.415837336] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621183.520547129] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621183.521679314] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621183.717513046] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621183.718368829] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621183.849582607] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621183.850475326] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621184.053642638] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621184.054347548] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621184.124324535] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621184.125138671] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621184.228559489] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621184.230161152] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621184.293961984] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621184.294716593] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621184.398907356] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621184.400682188] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621184.592103144] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621184.593050244] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621184.706539408] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621184.707625981] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+[INFO] [1777621184.894834047] [motor_state_publisher]: Published motor temperatures: [16, 13, 12, 17]
+[INFO] [1777621184.895942747] [motor_state_publisher]: Published battery state with average temperature: 14.5°C and average voltage: 49.90625V
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+<class 'farm_ng.canbus.canbus_pb2.MotorStates'>
+Traceback (most recent call last):
+  File "/home/cuma_karaaslan/farm-ng-amiga/py/examples/motor_states_stream/motor_battery.py", line 79, in main
+    await node.run()
+  File "/home/cuma_karaaslan/farm-ng-amiga/py/examples/motor_states_stream/motor_battery.py", line 40, in run
+    self.publish_motor_state(motor_temperatures)
+  File "/home/cuma_karaaslan/farm-ng-amiga/py/examples/motor_states_stream/motor_battery.py", line 49, in publish_motor_state
+    self.motor_state_pub.publish(motor_state_msg)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/publisher.py", line 70, in publish
+    self.__publisher.publish(msg)
+rclpy._rclpy_pybind11.RCLError: Failed to publish: publisher's context is invalid, at ./src/rcl/publisher.c:423
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/cuma_karaaslan/farm-ng-amiga/py/examples/motor_states_stream/motor_battery.py", line 91, in <module>
+    asyncio.run(main(args.service_config))
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/cuma_karaaslan/farm-ng-amiga/py/examples/motor_states_stream/motor_battery.py", line 84, in main
+    rclpy.shutdown()
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 134, in shutdown
+    _shutdown(context=context)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py", line 82, in shutdown
+    context.shutdown()
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py", line 129, in shutdown
+    self.__context.shutdown()
+rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333

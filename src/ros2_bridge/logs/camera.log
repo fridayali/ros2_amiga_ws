@@ -1,0 +1,122 @@
+[INFO] [1777621174.218913341] [camera_ros_bridge]: CameraRosBridge initialized.
+[INFO] [1777621174.567696261] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621174.759776531] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621174.894328891] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621175.022994157] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621175.152614946] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621175.282664907] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621175.410199177] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621175.535992500] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621175.663760432] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621175.796419258] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621175.922515951] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621176.046319774] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621176.172875606] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621176.313010571] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621176.438522886] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621176.564494337] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621176.692378944] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621176.815780155] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621176.941336074] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621177.067127357] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621177.193123319] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621177.318973168] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621177.446356949] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621177.571177539] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621177.696881913] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621177.825772604] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621177.952688541] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621178.079255902] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621178.202670169] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621178.327439452] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621178.452356311] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621178.575543349] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621178.701071373] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621178.826499179] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621178.949593114] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621179.075721685] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621179.201145409] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621179.328739308] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621179.454195632] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621179.579770918] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621179.705332663] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621179.838171784] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621179.961166135] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621180.382265432] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621180.537956770] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621180.661899078] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621180.788056055] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621180.915316548] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621181.041089027] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621181.166533298] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621181.295675531] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621181.428131610] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621181.551385059] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621181.675650119] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621181.798687452] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621181.925053576] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621182.056453108] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621182.181827750] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621182.309583978] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621182.433906517] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621182.561549582] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621182.688518898] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621182.813105967] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621182.938464054] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621183.063682766] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621183.187608125] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621183.314363405] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621183.438745629] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621183.564667835] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621183.688502106] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621183.814047539] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621183.938403093] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621184.063918058] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621184.188141049] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621184.312874152] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621184.436358101] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621184.562055851] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621184.687941616] [camera_ros_bridge]: Published frame to /camera1
+[INFO] [1777621184.821037395] [camera_ros_bridge]: Published frame to /camera1
+Traceback (most recent call last):
+  File "/home/cuma_karaaslan/ros2_amiga_ws/src/ros2_bridge/src/cam_to_ros.py", line 104, in main
+    await camera_client.start()
+  File "/home/cuma_karaaslan/ros2_amiga_ws/src/ros2_bridge/src/cam_to_ros.py", line 91, in start
+    rclpy.spin_once(self.ros_node, timeout_sec=0.1)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 224, in spin_once
+    executor.spin_once(timeout_sec=timeout_sec)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 839, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 823, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 793, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 701, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/cuma_karaaslan/ros2_amiga_ws/src/ros2_bridge/src/cam_to_ros.py", line 119, in <module>
+    asyncio.run(main(args.service_config))
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/cuma_karaaslan/ros2_amiga_ws/src/ros2_bridge/src/cam_to_ros.py", line 109, in main
+    rclpy.shutdown()
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 134, in shutdown
+    _shutdown(context=context)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py", line 82, in shutdown
+    context.shutdown()
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py", line 129, in shutdown
+    self.__context.shutdown()
+rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333
