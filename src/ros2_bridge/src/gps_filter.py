@@ -2,12 +2,13 @@
 import argparse
 import asyncio
 from pathlib import Path
-from math import radians
+from math import radians, cos
 
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import NavSatFix, NavSatStatus
 from geometry_msgs.msg import PoseStamped
+from nav_msgs.msg import Odometry
 from tf_transformations import quaternion_from_euler
 
 from farm_ng.canbus.canbus_pb2 import Twist2d
@@ -15,30 +16,64 @@ from farm_ng.core.event_client import EventClient
 from farm_ng.core.event_service_pb2 import EventServiceConfig, EventServiceConfigList, SubscribeRequest
 from farm_ng.core.events_file_reader import proto_from_json_file
 from farm_ng.gps import gps_pb2
-from farm_ng_core_pybind import Pose3F64
+
+# Sabit datum (anchor) noktası. Aracın kendi filter servisi sanal/değişken
+# bir anchor seçip pose'u o anchor'a göre basıyor; bu anchor araç ilerlerken
+# kayabiliyor ve /rtk/odom'da sıçramalara yol açıyor. Bunun önüne geçmek için
+# pozisyonu, aracın anchor'undan tamamen bağımsız olarak, burada sabitlenen
+# tek bir referans noktasına (datum) göre WGS84 lat/lon'dan hesaplıyoruz.
+DEFAULT_ANCHOR_LAT_DEG = 39.796011
+DEFAULT_ANCHOR_LON_DEG = 32.531534
+EARTH_RADIUS_M = 6378137.0  # WGS84 ekvator yarıçapı, yerel düzlem projeksiyonu için yeterli
+
+
+def latlon_to_local_xy(lat_deg: float, lon_deg: float, anchor_lat_deg: float, anchor_lon_deg: float) -> tuple[float, float]:
+    """WGS84 lat/lon'u sabit anchor'a göre yerel ENU (x=doğu, y=kuzey) metreye çevirir.
+
+    Equirectangular (flat-earth) yaklaşımı; çiftlik ölçeğindeki (birkaç km) mesafeler için yeterli hassasiyette.
+    """
+    anchor_lat_rad = radians(anchor_lat_deg)
+    dlat = radians(lat_deg - anchor_lat_deg)
+    dlon = radians(lon_deg - anchor_lon_deg)
+    x_east = dlon * cos(anchor_lat_rad) * EARTH_RADIUS_M
+    y_north = dlat * EARTH_RADIUS_M
+    return x_east, y_north
 
 
 class MultiClientSubscriber(Node):
     """Example of subscribing to events from multiple clients and publishing to ROS2."""
 
-    def __init__(self, service_config: EventServiceConfigList) -> None:
+    def __init__(
+        self,
+        service_config: EventServiceConfigList,
+        anchor_lat_deg: float = DEFAULT_ANCHOR_LAT_DEG,
+        anchor_lon_deg: float = DEFAULT_ANCHOR_LON_DEG,
+    ) -> None:
         super().__init__("multi_client_subscriber_ros")
 
         self.service_config = service_config
         self._clients: dict[str, EventClient] = {}   # <-- Değiştirildi
         self._subscriptions = []                     # <-- Değiştirildi
         self.orientation: float = None
-        self.pose: Pose3F64 = None
+
+        # Sabit datum (anchor) noktası — tüm /rtk/odom yayınları bu tek noktaya göre.
+        self.anchor_lat_deg = anchor_lat_deg
+        self.anchor_lon_deg = anchor_lon_deg
+        self.get_logger().info(
+            f"RTK odom datum (sabit anchor): lat={self.anchor_lat_deg:.6f}, lon={self.anchor_lon_deg:.6f}"
+        )
 
         # ROS2 publishers
         self.pub_fix = self.create_publisher(NavSatFix, "/gps/fix", 10)
         self.pub_pose = self.create_publisher(PoseStamped, "/gps/pose", 10)
+        self.pub_odom = self.create_publisher(Odometry, "/rtk/odom", 10)
 
         # GPS cache
         self.last_lat = 0.0
         self.last_lon = 0.0
         self.last_alt = 0.0
         self.last_yaw = 0.0
+        self.last_fix_ok = False
 
         # Populate the event clients
         config: EventServiceConfig
@@ -64,6 +99,7 @@ class MultiClientSubscriber(Node):
                 elif self.orientation is not None:
                     self.last_yaw = self.orientation  # filter'dan gelen yaw
                 fix_ok = getattr(message, "gnss_fix_ok", True)
+                self.last_fix_ok = fix_ok
 
                 # NavSatFix publish
                 gps_msg = NavSatFix()
@@ -94,51 +130,62 @@ class MultiClientSubscriber(Node):
                 print(f"[GPS] {self.last_lat:.6f}, {self.last_lon:.6f}, {self.last_alt:.2f}, yaw={self.last_yaw:.2f}")
 
             elif client_name == "filter":
-                if hasattr(message, "pose"):
-                    self.pose: Pose3F64 = Pose3F64.from_proto(message.pose)
+                # NOT: message.pose, aracın filter servisinin kendi seçtiği
+                # değişken/sanal anchor'a göredir — araç ilerlerken bu anchor
+                # kayabiliyor ve pozisyonda sıçrama yaratıyor. Bu yüzden pose.translation
+                # KULLANILMIYOR. Pozisyon, aşağıda sabit datum'a göre GPS lat/lon'dan
+                # hesaplanıyor. heading ise anchor'dan bağımsız, mutlak (absolute) bir
+                # büyüklük olduğu için filter'dan olduğu gibi alınıyor.
                 if hasattr(message, "heading"):
                     self.orientation = message.heading
 
-                if self.pose is not None and self.orientation is not None:
-                    # Odometry mesajı oluştur
-                    from nav_msgs.msg import Odometry
-                    odom_msg = Odometry()
-                    odom_msg.header.stamp = self.get_clock().now().to_msg()
-                    odom_msg.header.frame_id = "map"
-                    odom_msg.child_frame_id = "base_link"
+                if self.orientation is None:
+                    return
 
-                    # Pozisyon (Kartezyen koordinatlar)
-                    odom_msg.pose.pose.position.x = self.pose.translation[0]
-                    odom_msg.pose.pose.position.y = self.pose.translation[1]
-                    odom_msg.pose.pose.position.z = self.pose.translation[2]
+                if not self.last_fix_ok or (self.last_lat == 0.0 and self.last_lon == 0.0):
+                    self.get_logger().warn(
+                        "/rtk/odom yayınlanamadı: geçerli bir GPS fix yok.", throttle_duration_sec=5.0
+                    )
+                    return
 
-                    # Yönelim (Heading -> quaternion)
-                    q = quaternion_from_euler(0, 0, self.orientation)
-                    print(self.orientation)
-                    print(q)
-                    odom_msg.pose.pose.orientation.x = q[0]
-                    odom_msg.pose.pose.orientation.y = q[1]
-                    odom_msg.pose.pose.orientation.z = q[2]
-                    odom_msg.pose.pose.orientation.w = q[3]
-                    odom_msg.pose.covariance = [
-                        0.05, 0, 0, 0, 0, 0,
-                        0, 0.05, 0, 0, 0, 0,
-                        0, 0, 0.05, 0, 0, 0,
-                        0, 0, 0, 0.1, 0, 0,
-                        0, 0, 0, 0, 0.1, 0,
-                        0, 0, 0, 0, 0, 0.1
-                    ]
+                # Sabit anchor'a göre yerel ENU pozisyon (anchor kayması burada etkisiz)
+                x_local, y_local = latlon_to_local_xy(
+                    self.last_lat, self.last_lon, self.anchor_lat_deg, self.anchor_lon_deg
+                )
 
-                    # Yayınla
-                    if not hasattr(self, "pub_odom"):
-                        self.pub_odom = self.create_publisher(Odometry, "/rtk/odom", 10)
-                    self.pub_odom.publish(odom_msg)
+                odom_msg = Odometry()
+                odom_msg.header.stamp = self.get_clock().now().to_msg()
+                odom_msg.header.frame_id = "map"
+                odom_msg.child_frame_id = "base_link"
 
-                    print(
-                        f"[FILTER→ODOM] x={self.pose.translation[0]:.3f}, "
-                        f"y={self.pose.translation[1]:.3f}, "
-                        f"yaw={self.orientation:.3f}"
-        )
+                # Pozisyon (sabit datum'a göre Kartezyen koordinatlar)
+                odom_msg.pose.pose.position.x = x_local
+                odom_msg.pose.pose.position.y = y_local
+                odom_msg.pose.pose.position.z = 0.0
+
+                # Yönelim (mutlak heading -> quaternion)
+                q = quaternion_from_euler(0, 0, self.orientation)
+                odom_msg.pose.pose.orientation.x = q[0]
+                odom_msg.pose.pose.orientation.y = q[1]
+                odom_msg.pose.pose.orientation.z = q[2]
+                odom_msg.pose.pose.orientation.w = q[3]
+                odom_msg.pose.covariance = [
+                    0.05, 0, 0, 0, 0, 0,
+                    0, 0.05, 0, 0, 0, 0,
+                    0, 0, 0.05, 0, 0, 0,
+                    0, 0, 0, 0.1, 0, 0,
+                    0, 0, 0, 0, 0.1, 0,
+                    0, 0, 0, 0, 0, 0.1
+                ]
+
+                self.pub_odom.publish(odom_msg)
+
+                print(
+                    f"[GPS+ANCHOR→ODOM] x={x_local:.3f}, "
+                    f"y={y_local:.3f}, "
+                    f"yaw={self.orientation:.3f}"
+                )
+
     async def run(self) -> None:
         tasks: list[asyncio.Task] = []
         for subscription in self._subscriptions:   # <-- Değiştirildi
@@ -146,21 +193,29 @@ class MultiClientSubscriber(Node):
         await asyncio.gather(*tasks)
 
 
-async def main_async(config_path: Path):
+async def main_async(config_path: Path, anchor_lat_deg: float, anchor_lon_deg: float):
     service_config = proto_from_json_file(config_path, EventServiceConfigList())
-    node = MultiClientSubscriber(service_config)
+    node = MultiClientSubscriber(service_config, anchor_lat_deg, anchor_lon_deg)
     await node.run()
 
 
 def main():
     parser = argparse.ArgumentParser(description="Farm-ng GPS/Filter ROS2 bridge")
     parser.add_argument("--config", type=Path, required=True, help="Path to config.json")
+    parser.add_argument(
+        "--anchor-lat", type=float, default=DEFAULT_ANCHOR_LAT_DEG,
+        help="Sabit RTK datum enlemi (derece). Varsayılan: %(default)s",
+    )
+    parser.add_argument(
+        "--anchor-lon", type=float, default=DEFAULT_ANCHOR_LON_DEG,
+        help="Sabit RTK datum boylamı (derece). Varsayılan: %(default)s",
+    )
     args = parser.parse_args()
 
     rclpy.init()
 
     try:
-        asyncio.run(main_async(args.config))
+        asyncio.run(main_async(args.config, args.anchor_lat, args.anchor_lon))
     except KeyboardInterrupt:
         print("Stopped by user.")
     finally:
