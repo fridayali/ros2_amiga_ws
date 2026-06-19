@@ -41,6 +41,11 @@ const ROS_HEADING_OFFSET_NODE = "/imu_odom_republisher";
 const ROS_HEADING_OFFSET_PARAM = "imu_yaw_offset_deg";
 // const GPS_DATUM = { lat: 39.8936491, lng: 32.7717700 }; // Ofis
 const GPS_DATUM = { lat: 39.7962150, lng: 32.5312773 }; // Saha bahçe
+// gps_filter.py'deki sabit anchor ile AYNI olmalı — robot, /rtk/odom'u bu
+// noktaya göre (x=doğu, y=kuzey metre) yayınlıyor. Robot marker'ını GPS fix
+// beklemeden, doğrudan TF (map->base_link, /rtk/odom ile besleniyor) ile bu
+// sabit noktaya göre konumlandırıyoruz — canlı GPS+heading dönüşümüne gerek yok.
+const FIXED_DATUM = { lat: 39.796011, lng: 32.531534 };
 const MIN_NO_GO_AREA_M2 = 0.5;
 const NAVSAT_MAGNETIC_DECLINATION_RAD = 0.068;
 const NAVSAT_YAW_OFFSET_RAD = 0.0;
@@ -1763,22 +1768,6 @@ function parseRtkStatusFromText(text) {
   return null;
 }
 
-function horizontalStdFromCovariance(cov) {
-  if (!Array.isArray(cov) || cov.length < 5) return null;
-
-  const xVar = toNum(cov[0]);
-  const yVar = toNum(cov[4]);
-
-  if (xVar === null || yVar === null || xVar < 0 || yVar < 0) return null;
-
-  return Math.sqrt(Math.max(xVar, yVar));
-}
-
-function ageSec(info) {
-  if (!info?.ts) return null;
-  return Math.max(0, (Date.now() - info.ts) / 1000);
-}
-
 function checkColors(level) {
   if (level === "ok") return { fg: "#39ff14", bg: "rgba(57,255,20,.07)", border: "rgba(57,255,20,.35)" };
   if (level === "warn") return { fg: "#fbbf24", bg: "rgba(251,191,36,.08)", border: "rgba(251,191,36,.35)" };
@@ -1790,12 +1779,7 @@ function buildMissionReadiness({
   isConnected,
   waypoints,
   currentGpsLatLng,
-  rawGpsInfo,
   robotPoseInfo,
-  gpsTfDistance,
-  datumDistanceM,
-  debugPoints,
-  lastDebugPoint,
   nav2GoalInfo
 }) {
   const checks = [];
@@ -1821,78 +1805,24 @@ function buildMissionReadiness({
     waypoints.length === 0
   );
 
-  const gpsAge = ageSec(rawGpsInfo);
-  const gpsStd = horizontalStdFromCovariance(rawGpsInfo?.positionCovariance);
-  const hasFix = Boolean(
-    currentGpsLatLng &&
-    rawGpsInfo &&
-    Number.isFinite(rawGpsInfo.status) &&
-    rawGpsInfo.status >= 0
+  // Robot pozisyonu için GPS fix gerekmiyor — TF (map->base), /rtk/odom ile
+  // besleniyor ve bu yeterli. GPS fix burada sadece bilgi amaçlı, blocker değil.
+  add(
+    "gps",
+    currentGpsLatLng ? "ok" : "info",
+    "GPS fix (bilgi)",
+    currentGpsLatLng ? "Geçerli /gps/fix alınıyor" : "Henüz /gps/fix yok (gerekli değil)"
   );
-
-  if (!hasFix) {
-    add("gps", "danger", "GPS fix", "Geçerli /fix yok. Enlem/boylam dönüşümüne güvenilemez.", true);
-  } else if (gpsAge !== null && gpsAge > 3) {
-    add("gps", "warn", "GPS fix", `/fix mesajı eski: ${gpsAge.toFixed(1)} sn önce`);
-  } else if (gpsStd !== null && gpsStd > 2.0) {
-    add("gps", "warn", "GPS covariance", `Yatay standart sapma yüksek: ${gpsStd.toFixed(2)} m`);
-  } else {
-    add(
-      "gps",
-      "ok",
-      "GPS fix",
-      `Geçerli fix${gpsStd !== null ? `, yatay std ${gpsStd.toFixed(2)} m` : ""}`
-    );
-  }
 
   add(
     "tf",
     robotPoseInfo ? "ok" : "danger",
-    "TF map -> base",
+    "TF map -> base (/rtk/odom)",
     robotPoseInfo
       ? `x=${robotPoseInfo.x.toFixed(2)} y=${robotPoseInfo.y.toFixed(2)}`
       : "map -> base_link/base_footprint bekleniyor",
     !robotPoseInfo
   );
-
-  if (Number.isFinite(datumDistanceM)) {
-    add(
-      "datum",
-      datumDistanceM > 2000 ? "warn" : "ok",
-      "Datum mesafesi",
-      `Tanımlı datumdan ${datumDistanceM.toFixed(1)} m uzakta`
-    );
-  } else {
-    add("datum", "info", "Datum mesafesi", "GPS fix bekleniyor");
-  }
-
-  if (Number.isFinite(gpsTfDistance)) {
-    add(
-      "gps_tf",
-      gpsTfDistance > 5 ? "danger" : gpsTfDistance > 2 ? "warn" : "ok",
-      "GPS ve TF hizası",
-      `${gpsTfDistance.toFixed(2)} m fark${gpsTfDistance > 5 ? " - map->odom/navsat hizalamasını kontrol et" : ""}`
-    );
-  } else {
-    add("gps_tf", "info", "GPS ve TF hizası", "/odometry/gps ve TF pozu bekleniyor");
-  }
-
-  if (!debugPoints.length) {
-    add("fromll", "info", "Waypoint dönüşümü", "Henüz /fromLL debug noktası yok. Bir kez başlat veya dönüşümü doğrula.");
-  } else if (
-    !lastDebugPoint ||
-    !Number.isFinite(lastDebugPoint.mapX) ||
-    !Number.isFinite(lastDebugPoint.mapY)
-  ) {
-    add("fromll", "warn", "Waypoint dönüşümü", "Son debug noktasında map_x/map_y yok");
-  } else {
-    add(
-      "fromll",
-      "ok",
-      "Waypoint dönüşümü",
-      `Son hedef ${lastDebugPoint.goalFrameId || "map"} x=${lastDebugPoint.mapX.toFixed(2)} y=${lastDebugPoint.mapY.toFixed(2)}`
-    );
-  }
 
   if (nav2GoalInfo?.frameId) {
     add(
@@ -3258,7 +3188,7 @@ export default function GPSMissionPlannerPage() {
 
       const sub = new ROSLIB.Topic({
         ros,
-        name: "/fix",
+        name: "/gps/fix",
         messageType: "sensor_msgs/NavSatFix",
         queue_length: 1,
         throttle_rate: 1000
@@ -3281,17 +3211,10 @@ export default function GPSMissionPlannerPage() {
 
         setRawGpsInfo(rawInfo);
 
+	        // Robot marker'ı artık /gps/fix'e değil TF (/rtk/odom) tabanlı sabit
+	        // datum'a göre konumlandırılıyor — burada sadece bilgi amaçlı raw GPS
+	        // değerini tutuyoruz, marker'ı güncellemiyoruz.
 	        if (Number.isFinite(rawInfo.latitude) && Number.isFinite(rawInfo.longitude)) {
-	          updateRobotMarker(
-	            rawInfo.latitude,
-	            rawInfo.longitude,
-	            robotYawRef.current
-          );
-	          updateTfPoseMarker();
-	          updateNav2GoalMarker();
-	          updateNav2PlanOverlays();
-	          updateRosFrameDebugOverlay();
-
           if (Date.now() - lastFixLogRef.current > 5000) {
             lastFixLogRef.current = Date.now();
             addLog("fix", `GPS fix lat=${rawInfo.latitude.toFixed(7)} lon=${rawInfo.longitude.toFixed(7)}`);
@@ -3364,11 +3287,11 @@ export default function GPSMissionPlannerPage() {
           ts: Date.now()
         });
 
-        const ll = robotLatLonRef.current;
-
-        if (ll) {
-          updateRobotMarker(ll.lat, ll.lng, pose.yaw);
-        }
+        // GPS fix beklemeye gerek yok: TF (map->base_link/base_footprint),
+        // /rtk/odom ile besleniyor ve zaten sabit datum'a göre. x,y'yi
+        // doğrudan sabit datum'a göre lat/lng'e çeviriyoruz.
+        const ll = offsetLatLng(FIXED_DATUM, pose.x, pose.y);
+        updateRobotMarker(ll.lat, ll.lng, pose.yaw);
 	        updateTfPoseMarker();
 	        updateNav2GoalMarker();
 	        updateNav2PlanOverlays();
@@ -3966,23 +3889,8 @@ export default function GPSMissionPlannerPage() {
   const startMission = useCallback(() => {
     if (!ros || !isConnected || waypoints.length === 0) return;
 
-    const gps = rawGpsInfo;
-    const hasValidFix =
-      Number.isFinite(gps?.latitude) &&
-      Number.isFinite(gps?.longitude) &&
-      Number.isFinite(gps?.status) &&
-      gps.status >= 0;
-
-    if (!hasValidFix) {
-      addLog("warn", "Action Start engellendi: geçerli GPS fix yok");
-      showMissionNotice("ACTION START engellendi: geçerli GPS fix yok", "danger");
-      publishUiState({
-        notice: { text: "ACTION START engellendi: geçerli GPS fix yok", level: "danger" },
-        log: { level: "warn", text: "Action Start engellendi: geçerli GPS fix yok" }
-      });
-      return;
-    }
-
+    // GPS fix beklenmiyor — robot pozisyonu TF (/rtk/odom ile besleniyor)
+    // üzerinden geliyor, bu yeterli.
     if (!robotPoseInfo) {
       addLog("warn", "Action Start engellendi: TF map->base bekleniyor");
       showMissionNotice("ACTION START engellendi: TF map->base bekleniyor", "danger");
@@ -4028,7 +3936,7 @@ export default function GPSMissionPlannerPage() {
       notice: { text: `Action Start: ${waypoints.length} waypoint araca gönderildi`, level: "active" },
       log: { level: "info", text: `${waypoints.length} waypoint araca gonderildi` }
     });
-  }, [ros, isConnected, waypoints, rawGpsInfo, robotPoseInfo, ensurePublisher, addLog, showMissionNotice, publishUiState]);
+  }, [ros, isConnected, waypoints, robotPoseInfo, ensurePublisher, addLog, showMissionNotice, publishUiState]);
 
   const toggleMissionStop = useCallback(() => {
     if (!ros || !isConnected) return;
@@ -5000,23 +4908,13 @@ export default function GPSMissionPlannerPage() {
     isConnected,
     waypoints,
     currentGpsLatLng,
-    rawGpsInfo,
     robotPoseInfo,
-    gpsTfDistance,
-    datumDistanceM,
-    debugPoints,
-    lastDebugPoint,
     nav2GoalInfo
   }), [
     isConnected,
     waypoints,
     currentGpsLatLng,
-    rawGpsInfo,
     robotPoseInfo,
-    gpsTfDistance,
-    datumDistanceM,
-    debugPoints,
-    lastDebugPoint,
     nav2GoalInfo
   ]);
   const readinessHeaderColors = checkColors(missionReadiness.worstLevel);
