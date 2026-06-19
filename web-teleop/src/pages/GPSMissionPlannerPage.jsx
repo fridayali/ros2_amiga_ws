@@ -2038,6 +2038,8 @@ export default function GPSMissionPlannerPage() {
   const lastImuLogRef = useRef(0);
 
   const wpPublisherRef = useRef(null);
+  const cancelPublisherRef = useRef(null);
+  const pauseServiceRef = useRef(null);
   const statusSubRef = useRef(null);
   const robotSubRef = useRef(null);
   const imuSubRef = useRef(null);
@@ -3101,7 +3103,7 @@ export default function GPSMissionPlannerPage() {
 
       const sub = new ROSLIB.Topic({
         ros,
-        name: "/gps_waypoint_nav/status",
+        name: "/task_manager/status",
         messageType: "std_msgs/String",
         queue_length: 1,
         throttle_rate: 500
@@ -3869,13 +3871,17 @@ export default function GPSMissionPlannerPage() {
 	  }, [ros, isConnected, updateRobotMarker, updateTfPoseMarker, updateNav2GoalMarker, updateNav2PlanOverlays, updateRosFrameDebugOverlay, addLog, showMissionNotice, markWaypointReached]);
 
   // ── Publisher ─────────────────────────────────────────────────────────
+  // task_manager_node.py'nin gerçek arayüzü: /mission_segments (mission JSON),
+  // /task_manager/cancel (Empty), /task_manager/pause (SetBool servisi).
+  // Eskiden /ui/gps_waypoint'e yayın yapılıyordu ama bunu hiçbir node
+  // dinlemiyordu — mesajlar hiçbir zaman robota ulaşmıyordu.
   const ensurePublisher = useCallback(() => {
     if (wpPublisherRef.current) return wpPublisherRef.current;
     if (!ros) return null;
 
     const pub = new ROSLIB.Topic({
       ros,
-      name: "/ui/gps_waypoint",
+      name: "/mission_segments",
       messageType: "std_msgs/String",
       queue_size: 1
     });
@@ -3884,6 +3890,36 @@ export default function GPSMissionPlannerPage() {
     wpPublisherRef.current = pub;
 
     return pub;
+  }, [ros]);
+
+  const ensureCancelPublisher = useCallback(() => {
+    if (cancelPublisherRef.current) return cancelPublisherRef.current;
+    if (!ros) return null;
+
+    const pub = new ROSLIB.Topic({
+      ros,
+      name: "/task_manager/cancel",
+      messageType: "std_msgs/Empty",
+      queue_size: 1
+    });
+
+    pub.advertise();
+    cancelPublisherRef.current = pub;
+
+    return pub;
+  }, [ros]);
+
+  const ensurePauseService = useCallback(() => {
+    if (pauseServiceRef.current) return pauseServiceRef.current;
+    if (!ros) return null;
+
+    pauseServiceRef.current = new ROSLIB.Service({
+      ros,
+      name: "/task_manager/pause",
+      serviceType: "std_srvs/SetBool"
+    });
+
+    return pauseServiceRef.current;
   }, [ros]);
 
   const startMission = useCallback(() => {
@@ -3905,7 +3941,7 @@ export default function GPSMissionPlannerPage() {
 
     if (!pub) return;
 
-    const buildWaypointPayload = wp => {
+    const buildGpsWaypoint = wp => {
       const payload = {
         latitude: wp.lat,
         longitude: wp.lng
@@ -3918,80 +3954,80 @@ export default function GPSMissionPlannerPage() {
       return payload;
     };
 
-    const payload = waypoints.length === 1
-      ? JSON.stringify(buildWaypointPayload(waypoints[0]))
-      : JSON.stringify({
-          waypoints: waypoints.map(buildWaypointPayload)
-        });
+    const payload = JSON.stringify({
+      mission_id: `web-${Date.now()}`,
+      segments_json: [
+        {
+          order_index: 0,
+          action: "move",
+          gpsWaypoints: waypoints.map(buildGpsWaypoint)
+        }
+      ]
+    });
 
     reachedWaypointIndexesRef.current = new Set();
     setReachedWaypointIndexes(new Set());
     setMissionStopped(false);
     pub.publish({ data: payload });
-    addLog("info", `${waypoints.length} waypoint araca gonderildi`);
+    addLog("info", `${waypoints.length} waypoint araca gonderildi (/mission_segments)`);
     showMissionNotice(`Action Start: ${waypoints.length} waypoint araca gönderildi`, "active");
     publishUiState({
       waypoints,
       missionStopped: false,
       notice: { text: `Action Start: ${waypoints.length} waypoint araca gönderildi`, level: "active" },
-      log: { level: "info", text: `${waypoints.length} waypoint araca gonderildi` }
+      log: { level: "info", text: `${waypoints.length} waypoint araca gonderildi (/mission_segments)` }
     });
   }, [ros, isConnected, waypoints, robotPoseInfo, ensurePublisher, addLog, showMissionNotice, publishUiState]);
 
   const toggleMissionStop = useCallback(() => {
     if (!ros || !isConnected) return;
 
-    const pub = ensurePublisher();
+    const srv = ensurePauseService();
 
-    if (!pub) return;
+    if (!srv) return;
 
     const nextStopped = !missionStopped;
-    const command = nextStopped ? "stop" : "resume";
     const noticeText = nextStopped
-      ? "STOP komutu gönderildi: görev duraklatılıyor"
+      ? "PAUSE komutu gönderildi: görev duraklatılıyor"
       : "RESUME komutu gönderildi: görev devam ediyor";
 
-    pub.publish({
-      data: JSON.stringify({
-        command
-      })
-    });
+    srv.callService(
+      { data: nextStopped },
+      () => {},
+      err => addLog("danger", `/task_manager/pause servis hatası: ${err}`)
+    );
     setMissionStopped(nextStopped);
-    addLog(nextStopped ? "warn" : "info", `${command.toUpperCase()} komutu gonderildi`);
+    addLog(nextStopped ? "warn" : "info", `${nextStopped ? "PAUSE" : "RESUME"} komutu gonderildi`);
     showMissionNotice(noticeText, nextStopped ? "warn" : "active");
     publishUiState({
       missionStopped: nextStopped,
       notice: { text: noticeText, level: nextStopped ? "warn" : "active" },
-      log: { level: nextStopped ? "warn" : "info", text: `${command.toUpperCase()} komutu gonderildi` }
+      log: { level: nextStopped ? "warn" : "info", text: `${nextStopped ? "PAUSE" : "RESUME"} komutu gonderildi` }
     });
-  }, [ros, isConnected, ensurePublisher, missionStopped, addLog, showMissionNotice, publishUiState]);
+  }, [ros, isConnected, ensurePauseService, missionStopped, addLog, showMissionNotice, publishUiState]);
 
   const cancelMission = useCallback(() => {
     if (!ros || !isConnected) return;
 
-    const pub = ensurePublisher();
+    const pub = ensureCancelPublisher();
 
     if (!pub) return;
 
-    pub.publish({
-      data: JSON.stringify({
-        command: "cancel"
-      })
-    });
+    pub.publish({});
     setMissionStopped(false);
     globalPlanRef.current = [];
     localPlanRef.current = [];
     setGlobalPlanInfo(null);
     setLocalPlanInfo(null);
     updateNav2PlanOverlays();
-    addLog("warn", "Action Cancel komutu gonderildi");
+    addLog("warn", "Action Cancel komutu gonderildi (/task_manager/cancel)");
     showMissionNotice("Action Cancel komutu gönderildi", "muted");
     publishUiState({
       missionStopped: false,
       notice: { text: "Action Cancel komutu gönderildi", level: "muted" },
-      log: { level: "warn", text: "Action Cancel komutu gonderildi" }
+      log: { level: "warn", text: "Action Cancel komutu gonderildi (/task_manager/cancel)" }
     });
-  }, [ros, isConnected, ensurePublisher, updateNav2PlanOverlays, addLog, showMissionNotice, publishUiState]);
+  }, [ros, isConnected, ensureCancelPublisher, updateNav2PlanOverlays, addLog, showMissionNotice, publishUiState]);
 
   // ── Waypoint ops ──────────────────────────────────────────────────────
   const removeWaypoint = i => {
