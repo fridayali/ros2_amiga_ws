@@ -64,7 +64,7 @@ class MultiClientSubscriber(Node):
         )
 
         # ROS2 publishers
-        self.pub_fix = self.create_publisher(NavSatFix, "/gps/fix", 10)
+        self.pub_fix  = self.create_publisher(NavSatFix, "/gps/fix", 10)
         self.pub_pose = self.create_publisher(PoseStamped, "/gps/pose", 10)
         self.pub_odom = self.create_publisher(Odometry, "/rtk/odom", 10)
 
@@ -87,104 +87,123 @@ class MultiClientSubscriber(Node):
         client_name: str = subscription.uri.query.split("=")[-1]
         client: EventClient = self._clients[client_name]
 
-        async for event, message in client.subscribe(subscription, decode=True):
-            if client_name == "gps" and isinstance(message, gps_pb2.GpsFrame):
-                self.last_lat = message.latitude
-                self.last_lon = message.longitude
-                self.last_alt = message.altitude
-                # Eğer GPS verisinde headingMotion yoksa, filter orientation'ı kullan
-                gps_yaw = getattr(message, "headingMotion", None)
-                if gps_yaw is not None and gps_yaw != 0.0:
-                    self.last_yaw = gps_yaw
-                elif self.orientation is not None:
-                    self.last_yaw = self.orientation  # filter'dan gelen yaw
-                fix_ok = getattr(message, "gnss_fix_ok", True)
-                self.last_fix_ok = fix_ok
+        # NOT: client.subscribe() stream'i ara sıra (CPU yükü, ağ vb.) hata vermeden
+        # sessizce sonlanabiliyor. Bu durumda async for döngüsü biter ve eskiden bu
+        # subscription bir daha asla yenilenmiyordu (sessiz, kalıcı veri kesintisi).
+        # Bu yüzden dışına bir retry döngüsü eklendi.
+        while True:
+            try:
+                async for event, message in client.subscribe(subscription, decode=True):
+                    await self._handle_message(client_name, event, message)
+            except Exception as exc:
+                self.get_logger().error(f"[{client_name}] subscribe hatası: {exc}")
+            self.get_logger().warn(f"[{client_name}] subscription kapandı, yeniden bağlanılıyor...")
+            await asyncio.sleep(1.0)
 
-                # NavSatFix publish
-                gps_msg = NavSatFix()
-                gps_msg.header.stamp = self.get_clock().now().to_msg()
-                gps_msg.header.frame_id = "gps_link"
-                gps_msg.latitude = self.last_lat
-                gps_msg.longitude = self.last_lon
-                gps_msg.altitude = self.last_alt
-                gps_msg.status.status = (
-                    NavSatStatus.STATUS_FIX if fix_ok else NavSatStatus.STATUS_NO_FIX
+    async def _handle_message(self, client_name: str, event, message) -> None:
+        if client_name == "gps" and isinstance(message, gps_pb2.GpsFrame):
+            self.last_lat = message.latitude
+            self.last_lon = message.longitude
+            self.last_alt = message.altitude
+            # Eğer GPS verisinde headingMotion yoksa, filter orientation'ı kullan
+            gps_yaw = getattr(message, "headingMotion", None)
+            if gps_yaw is not None and gps_yaw != 0.0:
+                self.last_yaw = gps_yaw
+            elif self.orientation is not None:
+                self.last_yaw = self.orientation  # filter'dan gelen yaw
+            fix_ok = getattr(message, "gnss_fix_ok", True)
+            self.last_fix_ok = fix_ok
+
+            # NavSatFix publish
+            gps_msg = NavSatFix()
+            gps_msg.header.stamp = self.get_clock().now().to_msg()
+            gps_msg.header.frame_id = "gps_link"
+            gps_msg.latitude = self.last_lat
+            gps_msg.longitude = self.last_lon
+            gps_msg.altitude = self.last_alt
+            gps_msg.status.status = (
+                NavSatStatus.STATUS_FIX if fix_ok else NavSatStatus.STATUS_NO_FIX
+            )
+            gps_msg.status.service = NavSatStatus.SERVICE_GPS
+            gps_msg.position_covariance = [
+                4.0, 0.0, 0.0,
+                0.0, 4.0, 0.0,
+                0.0, 0.0, 9.0
+            ]
+            gps_msg.position_covariance_type = 2
+            self.pub_fix.publish(gps_msg)
+
+            # PoseStamped publish
+            pose_msg = PoseStamped()
+            pose_msg.header = gps_msg.header
+            pose_msg.pose.position.x = self.last_lat
+            pose_msg.pose.position.y = self.last_lon
+            pose_msg.pose.position.z = self.last_alt
+            q = quaternion_from_euler(0, 0, radians(self.last_yaw))
+            pose_msg.pose.orientation.x = q[0]
+            pose_msg.pose.orientation.y = q[1]
+            pose_msg.pose.orientation.z = q[2]
+            pose_msg.pose.orientation.w = q[3]
+            self.pub_pose.publish(pose_msg)
+
+            print(f"[GPS] {self.last_lat:.6f}, {self.last_lon:.6f}, {self.last_alt:.2f}, yaw={self.last_yaw:.2f}")
+
+        elif client_name == "filter":
+            # NOT: message.pose, aracın filter servisinin kendi seçtiği
+            # değişken/sanal anchor'a göredir — araç ilerlerken bu anchor
+            # kayabiliyor ve pozisyonda sıçrama yaratıyor. Bu yüzden pose.translation
+            # KULLANILMIYOR. Pozisyon, aşağıda sabit datum'a göre GPS lat/lon'dan
+            # hesaplanıyor. heading ise anchor'dan bağımsız, mutlak (absolute) bir
+            # büyüklük olduğu için filter'dan olduğu gibi alınıyor.
+            if hasattr(message, "heading"):
+                self.orientation = message.heading
+
+            if self.orientation is None:
+                return
+
+            if not self.last_fix_ok or (self.last_lat == 0.0 and self.last_lon == 0.0):
+                self.get_logger().warn(
+                    "/rtk/odom yayınlanamadı: geçerli bir GPS fix yok.", throttle_duration_sec=5.0
                 )
-                gps_msg.status.service = NavSatStatus.SERVICE_GPS
-                self.pub_fix.publish(gps_msg)
+                return
 
-                # PoseStamped publish
-                pose_msg = PoseStamped()
-                pose_msg.header = gps_msg.header
-                pose_msg.pose.position.x = self.last_lat
-                pose_msg.pose.position.y = self.last_lon
-                pose_msg.pose.position.z = self.last_alt
-                q = quaternion_from_euler(0, 0, radians(self.last_yaw))
-                pose_msg.pose.orientation.x = q[0]
-                pose_msg.pose.orientation.y = q[1]
-                pose_msg.pose.orientation.z = q[2]
-                pose_msg.pose.orientation.w = q[3]
-                self.pub_pose.publish(pose_msg)
+            # Sabit anchor'a göre yerel ENU pozisyon (anchor kayması burada etkisiz)
+            x_local, y_local = latlon_to_local_xy(
+                self.last_lat, self.last_lon, self.anchor_lat_deg, self.anchor_lon_deg
+            )
 
-                print(f"[GPS] {self.last_lat:.6f}, {self.last_lon:.6f}, {self.last_alt:.2f}, yaw={self.last_yaw:.2f}")
+            odom_msg = Odometry()
+            odom_msg.header.stamp = self.get_clock().now().to_msg()
+            odom_msg.header.frame_id = "map"
+            odom_msg.child_frame_id = "base_link"
 
-            elif client_name == "filter":
-                # NOT: message.pose, aracın filter servisinin kendi seçtiği
-                # değişken/sanal anchor'a göredir — araç ilerlerken bu anchor
-                # kayabiliyor ve pozisyonda sıçrama yaratıyor. Bu yüzden pose.translation
-                # KULLANILMIYOR. Pozisyon, aşağıda sabit datum'a göre GPS lat/lon'dan
-                # hesaplanıyor. heading ise anchor'dan bağımsız, mutlak (absolute) bir
-                # büyüklük olduğu için filter'dan olduğu gibi alınıyor.
-                if hasattr(message, "heading"):
-                    self.orientation = message.heading
+            # Pozisyon (sabit datum'a göre Kartezyen koordinatlar)
+            odom_msg.pose.pose.position.x = x_local
+            odom_msg.pose.pose.position.y = y_local
+            odom_msg.pose.pose.position.z = 0.0
 
-                if self.orientation is None:
-                    return
+            # Yönelim (mutlak heading -> quaternion)
+            q = quaternion_from_euler(0, 0, self.orientation)
+            odom_msg.pose.pose.orientation.x = q[0]
+            odom_msg.pose.pose.orientation.y = q[1]
+            odom_msg.pose.pose.orientation.z = q[2]
+            odom_msg.pose.pose.orientation.w = q[3]
+            odom_msg.pose.covariance = [
+                0.05, 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.05, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.05, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.1, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.1, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.1
+            ]
 
-                if not self.last_fix_ok or (self.last_lat == 0.0 and self.last_lon == 0.0):
-                    self.get_logger().warn(
-                        "/rtk/odom yayınlanamadı: geçerli bir GPS fix yok.", throttle_duration_sec=5.0
-                    )
-                    return
+            self.pub_odom.publish(odom_msg)
 
-                # Sabit anchor'a göre yerel ENU pozisyon (anchor kayması burada etkisiz)
-                x_local, y_local = latlon_to_local_xy(
-                    self.last_lat, self.last_lon, self.anchor_lat_deg, self.anchor_lon_deg
-                )
-
-                odom_msg = Odometry()
-                odom_msg.header.stamp = self.get_clock().now().to_msg()
-                odom_msg.header.frame_id = "map"
-                odom_msg.child_frame_id = "base_link"
-
-                # Pozisyon (sabit datum'a göre Kartezyen koordinatlar)
-                odom_msg.pose.pose.position.x = x_local
-                odom_msg.pose.pose.position.y = y_local
-                odom_msg.pose.pose.position.z = 0.0
-
-                # Yönelim (mutlak heading -> quaternion)
-                q = quaternion_from_euler(0, 0, self.orientation)
-                odom_msg.pose.pose.orientation.x = q[0]
-                odom_msg.pose.pose.orientation.y = q[1]
-                odom_msg.pose.pose.orientation.z = q[2]
-                odom_msg.pose.pose.orientation.w = q[3]
-                odom_msg.pose.covariance = [
-                    0.05, 0, 0, 0, 0, 0,
-                    0, 0.05, 0, 0, 0, 0,
-                    0, 0, 0.05, 0, 0, 0,
-                    0, 0, 0, 0.1, 0, 0,
-                    0, 0, 0, 0, 0.1, 0,
-                    0, 0, 0, 0, 0, 0.1
-                ]
-
-                self.pub_odom.publish(odom_msg)
-
-                print(
-                    f"[GPS+ANCHOR→ODOM] x={x_local:.3f}, "
-                    f"y={y_local:.3f}, "
-                    f"yaw={self.orientation:.3f}"
-                )
+            print(
+                f"[GPS+ANCHOR→ODOM] x={x_local:.3f}, "
+                f"y={y_local:.3f}, "
+                f"yaw={self.orientation:.3f}"
+            )
 
     async def run(self) -> None:
         tasks: list[asyncio.Task] = []

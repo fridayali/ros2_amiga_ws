@@ -99,7 +99,9 @@
   <joint name="laser_joint" type="fixed">
     <parent link="base_link"/>
     <child link="laser_link"/>
-    <origin rpy="0 0 0" xyz="0.7 0 0.4"/>
+    <!-- LiDAR fiziksel olarak 180° ters monte edilmiş; sensörün 0° yönü
+         robotun arkasını gösteriyordu, burada düzeltildi. -->
+    <origin rpy="0 0 ${pi}" xyz="0.7 0 0.4"/>
   </joint>
 
 </robot>
