@@ -94,9 +94,9 @@ $VENV "$SRC/imu_to_ros.py"     --service-config "$CFG/imu_to_ros.json"    \
     >> "$LOG_DIR/imu_to_ros.log" 2>&1 &
 PIDS+=($!)
 
-$VENV "$SRC/cam_to_ros.py"     --service-config "$CFG/cam_to_ros.json"    \
-    >> "$LOG_DIR/camera.log" 2>&1 &
-PIDS+=($!)
+# $VENV "$SRC/cam_to_ros.py"     --service-config "$CFG/cam_to_ros.json"    \
+#     >> "$LOG_DIR/camera.log" 2>&1 &
+# PIDS+=($!)
 
 $VENV "$MOTOR_PY"              --service-config "$MOTOR_CFG"               \
     >> "$LOG_DIR/motor.log" 2>&1 &
