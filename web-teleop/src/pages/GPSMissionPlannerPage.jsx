@@ -40,12 +40,11 @@ const GPS_FRAME_DEBUG_TOPIC = "/gps_frame_debug";
 const ROS_HEADING_OFFSET_NODE = "/imu_odom_republisher";
 const ROS_HEADING_OFFSET_PARAM = "imu_yaw_offset_deg";
 // const GPS_DATUM = { lat: 39.8936491, lng: 32.7717700 }; // Ofis
-const GPS_DATUM = { lat: 39.7962150, lng: 32.5312773 }; // Saha bahçe
-// gps_filter.py'deki sabit anchor ile AYNI olmalı — robot, /rtk/odom'u bu
-// noktaya göre (x=doğu, y=kuzey metre) yayınlıyor. Robot marker'ını GPS fix
-// beklemeden, doğrudan TF (map->base_link, /rtk/odom ile besleniyor) ile bu
-// sabit noktaya göre konumlandırıyoruz — canlı GPS+heading dönüşümüne gerek yok.
-const FIXED_DATUM = { lat: 39.796011, lng: 32.531534 };
+// gps_filter.py'deki DEFAULT_ANCHOR_LAT_DEG/LON_DEG ile AYNI olmalı — robot,
+// /rtk/odom'u bu noktaya göre (x=doğu, y=kuzey metre) yayınlıyor. Robot
+// marker'ını GPS fix beklemeden, doğrudan TF (map->base_link, /rtk/odom ile
+// besleniyor) ile bu sabit noktaya göre konumlandırıyoruz.
+const GPS_DATUM = { lat: 39.796011, lng: 32.531534 }; // Saha bahçe (gps_filter.py anchor)
 const MIN_NO_GO_AREA_M2 = 0.5;
 const NAVSAT_MAGNETIC_DECLINATION_RAD = 0.068;
 const NAVSAT_YAW_OFFSET_RAD = 0.0;
@@ -3292,7 +3291,7 @@ export default function GPSMissionPlannerPage() {
         // GPS fix beklemeye gerek yok: TF (map->base_link/base_footprint),
         // /rtk/odom ile besleniyor ve zaten sabit datum'a göre. x,y'yi
         // doğrudan sabit datum'a göre lat/lng'e çeviriyoruz.
-        const ll = offsetLatLng(FIXED_DATUM, pose.x, pose.y);
+        const ll = offsetLatLng(GPS_DATUM, pose.x, pose.y);
         updateRobotMarker(ll.lat, ll.lng, pose.yaw);
 	        updateTfPoseMarker();
 	        updateNav2GoalMarker();
