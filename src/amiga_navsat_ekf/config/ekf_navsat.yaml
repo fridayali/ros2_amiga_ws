@@ -1,6 +1,6 @@
 ekf_local_node:
   ros__parameters:
-    frequency: 15.0
+    frequency: 10.0
     two_d_mode: true
     map_frame: map
     odom_frame: odom
@@ -43,7 +43,7 @@ ekf_local_node:
 
 ekf_global_node:
   ros__parameters:
-    frequency: 15.0 
+    frequency: 10.0 
     two_d_mode: true
 
     map_frame: map
