@@ -8,7 +8,7 @@
     {
       "name": "filter",
       "port": 20001,
-      "host": "10.10.10.117"
+      "host": "localhost"
     },
     {
     "name": "gps",
