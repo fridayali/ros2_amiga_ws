@@ -15,9 +15,9 @@ laser_filter:
       params:
         box_frame: base_link
         min_x: -2.0    # arkadan 2 metre
-        max_x:  0.2    # önden 20 cm
-        min_y: -0.2    # sağdan 20 cm
-        max_y:  1.5    # soldan 1.5 metre
+        max_x:  0.20   # önden 20 cm
+        min_y: -0.5    # sağdan 0.5 metre
+        max_y:  0.5    # soldan 0.5 metre
         min_z: -1.0
         max_z:  1.0
         invert: false
