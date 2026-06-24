@@ -2,7 +2,7 @@
 import argparse
 import asyncio
 from pathlib import Path
-from math import radians, cos
+from math import radians, cos, pi
 
 import rclpy
 from rclpy.node import Node
@@ -38,6 +38,18 @@ def latlon_to_local_xy(lat_deg: float, lon_deg: float, anchor_lat_deg: float, an
     x_east = dlon * cos(anchor_lat_rad) * EARTH_RADIUS_M
     y_north = dlat * EARTH_RADIUS_M
     return x_east, y_north
+
+
+def filter_heading_to_enu_yaw(heading_rad: float) -> float:
+    """Farm-ng filter servisinin north-referanslı heading'ini (0=kuzey) ENU/ROS
+    yaw'a (0=doğu/+x, 90°=kuzey/+y) çevirir.
+
+    Doğrudan /cmd_vel_nav testiyle (nav2'siz, ileri komut→ileri hareket)
+    motor/cmd_vel zincirinin doğru olduğu doğrulandı; bu da önceki sürüş
+    testiyle ölçülen -90° offset'in confound olmadığını, gerçek bir
+    north-referans/ENU-referans uyuşmazlığı olduğunu gösteriyor.
+    """
+    return heading_rad - pi / 2
 
 
 class MultiClientSubscriber(Node):
@@ -154,14 +166,12 @@ class MultiClientSubscriber(Node):
             # kayabiliyor ve pozisyonda sıçrama yaratıyor. Bu yüzden pose.translation
             # KULLANILMIYOR. Pozisyon, aşağıda sabit datum'a göre GPS lat/lon'dan
             # hesaplanıyor. heading ise anchor'dan bağımsız, mutlak (absolute) bir
-            # büyüklük olduğu için filter'dan olduğu gibi alınıyor.
-            #
-            # NOT 2: -90° (north->ENU) düzeltmesi denenmişti ama tek bir sürüş
-            # testine dayanıyordu ve cmd_vel/motor yönü tarafında olası ayrı bir
-            # ters işaret bug'ıyla confound olabilirdi (geri al — bkz. sohbet
-            # geçmişi). Doğru offset netleşene kadar ham heading kullanılıyor.
+            # büyüklük olduğu için filter'dan alınıyor — ama filter'ın heading'i
+            # north-referanslı (0=kuzey); ENU/ROS yaw'a (0=doğu) çevriliyor.
+            # (Doğrudan /cmd_vel_nav testiyle motor/cmd_vel zincirinin doğru
+            # olduğu doğrulandı, bu yüzden bu offset confound değil.)
             if hasattr(message, "heading"):
-                self.orientation = message.heading
+                self.orientation = filter_heading_to_enu_yaw(message.heading)
 
             if self.orientation is None:
                 return
