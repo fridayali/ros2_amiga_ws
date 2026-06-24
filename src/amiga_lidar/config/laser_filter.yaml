@@ -1,20 +1,31 @@
-scan_filter_chain:
-
-  # 1. Range filter: çok yakın (gürültü) ve çok uzak ölçümleri çıkar
-  - name: range_filter
-    type: laser_filters/LaserScanRangeFilter
-    params:
-      use_message_range_limits: false
-      lower_threshold: 0.15      # metre — daha yakın okumalar NaN yapılır
-      upper_threshold: 25.0      # metre — daha uzak okumalar NaN yapılır
-      lower_replacement_value: -.inf
-      upper_replacement_value: .inf
-
-  # 2. Açısal sınır filtresi: robotun kendi gövdesini görecek bölgeyi mask'le
-  # laser_link x=0.5'te (ön-orta), robot gövdesi arkada kalıyor.
-  # -135° … +135° bandını tut, arka ±45°'yi (±2.356 rad dışını) maskele.
-  - name: angular_bounds
-    type: laser_filters/LaserScanAngularBoundsFilterInPlace
-    params:
-      lower_angle: -2.356   # -135 derece
-      upper_angle:  2.356   #  135 derece
+scan_to_scan_filter_chain:
+  ros__parameters:
+    filter1:
+      name: range_filter
+      type: laser_filters/LaserScanRangeFilter
+      params:
+        use_message_range_limits: false
+        lower_threshold: 0.15
+        upper_threshold: 25.0
+        lower_replacement_value: -.inf
+        upper_replacement_value: .inf
+    filter2:
+      name: box_filter
+      type: laser_filters/LaserScanBoxFilter
+      params:
+        box_frame: base_link
+        min_x: -2.0    # arkadan 2 metre
+        max_x:  0.2    # önden 20 cm
+        min_y: -0.2    # sağdan 20 cm
+        max_y:  1.5    # soldan 1.5 metre
+        min_z: -1.0
+        max_z:  1.0
+        invert: false
+    filter3:
+      name: angular_bounds
+      type: laser_filters/LaserScanAngularBoundsFilterInPlace
+      params:
+        # Sadece ön ±45° (toplam 90°) tutulur, gerisi maskelenir.
+        # 0 rad = lidar'ın önü (laser_joint 180° düzeltmesiyle base_link +x'e hizalı).
+        lower_angle: -0.7854   # -45 derece
+        upper_angle:  0.7854   #  45 derece
