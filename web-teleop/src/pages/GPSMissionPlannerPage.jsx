@@ -23,7 +23,9 @@ const ORTHO_BOUNDS = [
   [39.798233, 32.534089]
 ];
 const ORTHO_START_ZOOM_BOOST = 4;
-const DEFAULT_MAP_CENTER = [39.893549900875065, 32.771757831262036];
+// Eski "Ofis" konumu (39.8935, 32.7718) kullanılıyordu — GPS_DATUM (saha
+// bahçe, gps_filter.py anchor) ile eşleşmiyordu. Artık aynı noktayı kullanıyor.
+const DEFAULT_MAP_CENTER = [39.796011, 32.531534];
 const OFFLINE_TILE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
 const UI_STATE_TOPIC = "/ui/gps_mission_planner/state";
 const WAYPOINTS_STORAGE_KEY = "gmp_waypoints_state";
@@ -37,8 +39,6 @@ const GPS_COVERAGE_DEBUG_POINTS_TOPIC = "/gps_coverage/debug_points";
 const GPS_COVERAGE_PATH_TOPIC = "/gps_coverage/path";
 const GPS_COVERAGE_START_SERVICE = "/gps_coverage/start";
 const GPS_FRAME_DEBUG_TOPIC = "/gps_frame_debug";
-const ROS_HEADING_OFFSET_NODE = "/imu_odom_republisher";
-const ROS_HEADING_OFFSET_PARAM = "imu_yaw_offset_deg";
 // const GPS_DATUM = { lat: 39.8936491, lng: 32.7717700 }; // Ofis
 // gps_filter.py'deki DEFAULT_ANCHOR_LAT_DEG/LON_DEG ile AYNI olmalı — robot,
 // /rtk/odom'u bu noktaya göre (x=doğu, y=kuzey metre) yayınlıyor. Robot
@@ -302,80 +302,6 @@ const CSS = `
     font-size:10px;
     line-height:1.35;
     box-sizing:border-box;
-  }
-  .gmp-heading-calibration{
-    position:absolute;
-    left:10px;
-    bottom:36px;
-    z-index:1100;
-    width:min(520px, calc(100% - 390px));
-    min-width:360px;
-    padding:7px;
-    border:1px solid rgba(255,255,255,.25);
-    background:rgba(9,10,14,.78);
-    color:#e6e6e6;
-    font-family:'JetBrains Mono',monospace;
-    font-size:10px;
-    line-height:1.35;
-    box-sizing:border-box;
-  }
-  .gmp-heading-grid{
-    display:grid;
-    grid-template-columns:repeat(5, minmax(0, 1fr));
-    gap:6px;
-    margin-top:5px;
-  }
-  .gmp-heading-controls{
-    display:grid;
-    grid-template-columns:minmax(0, 1fr) 96px 72px;
-    gap:6px;
-    margin-top:6px;
-  }
-  .gmp-heading-controls input{
-    min-width:0;
-    height:24px;
-    box-sizing:border-box;
-    border:1px solid rgba(255,255,255,.25);
-    background:rgba(0,0,0,.45);
-    color:#f8fafc;
-    font-family:'JetBrains Mono',monospace;
-    font-size:10px;
-    padding:2px 5px;
-  }
-  .gmp-heading-controls button{
-    height:24px;
-    border:1px solid rgba(255,255,255,.25);
-    background:#e7e7e7;
-    color:#111;
-    font-family:'JetBrains Mono',monospace;
-    font-size:10px;
-    font-weight:800;
-    cursor:pointer;
-  }
-  .gmp-heading-controls button:disabled{opacity:.45;cursor:not-allowed}
-  .gmp-heading-note{
-    margin-top:5px;
-    color:#aeb4bd;
-    font-family:'JetBrains Mono',monospace;
-    font-size:10px;
-    line-height:1.35;
-  }
-  .gmp-heading-toggle{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    margin-top:6px;
-    color:#d7d7d7;
-    font-family:'JetBrains Mono',monospace;
-    font-size:10px;
-    font-weight:700;
-    user-select:none;
-  }
-  .gmp-heading-toggle input{
-    width:13px;
-    height:13px;
-    margin:0;
-    accent-color:#b9ff2f;
   }
   .gmp-frame-debug-panel{
     position:absolute;
@@ -938,6 +864,36 @@ function latLngDeltaMeters(a, b) {
     east: dLng * earthR * Math.cos(latRad),
     north: dLat * earthR
   };
+}
+
+function yawToQuaternion(yaw) {
+  return { x: 0, y: 0, z: Math.sin(yaw / 2), w: Math.cos(yaw / 2) };
+}
+
+// GPS_DATUM, gps_filter.py'nin sabit anchor'uyla aynı — bu yüzden buradaki
+// east/north, nav2'nin 'map' frame'iyle (robot odom'unun kaynağı) birebir örtüşür.
+function waypointsToMapPoses(waypointList) {
+  const points = waypointList.map(wp => latLngDeltaMeters(GPS_DATUM, { lat: wp.lat, lng: wp.lng }));
+
+  return points.map((p, i) => {
+    const next = points[i + 1];
+    const prev = points[i - 1];
+    const ref = next || prev;
+    const yaw = ref
+      ? Math.atan2(
+          next ? next.north - p.north : p.north - prev.north,
+          next ? next.east - p.east : p.east - prev.east
+        )
+      : 0;
+
+    return {
+      header: { frame_id: "map", stamp: { sec: 0, nanosec: 0 } },
+      pose: {
+        position: { x: p.east, y: p.north, z: 0 },
+        orientation: yawToQuaternion(yaw)
+      }
+    };
+  });
 }
 
 function estimateMapXYFromRobotGps(targetLatLng, robotLatLon, robotPose, headingOffsetRad = 0) {
@@ -1962,8 +1918,6 @@ export default function GPSMissionPlannerPage() {
   const [actionPanelWidth, setActionPanelWidth] = useState(360);
   const [activeBaseLayer, setActiveBaseLayer] = useState("satellite");
   const [orthoTilesLoaded, setOrthoTilesLoaded] = useState(false);
-  const [compassHeadingInput, setCompassHeadingInput] = useState("");
-  const [lastCompassHeadingDeg, setLastCompassHeadingDeg] = useState(null);
   const [showBaseLinkXAxisArrow, setShowBaseLinkXAxisArrow] = useState(true);
   const [showUiHeadingArrow, setShowUiHeadingArrow] = useState(true);
   const [showRosMapXAxisArrow, setShowRosMapXAxisArrow] = useState(true);
@@ -2036,9 +1990,10 @@ export default function GPSMissionPlannerPage() {
   const lastTfLogRef = useRef(0);
   const lastImuLogRef = useRef(0);
 
-  const wpPublisherRef = useRef(null);
-  const cancelPublisherRef = useRef(null);
-  const pauseServiceRef = useRef(null);
+  const navToPoseActionRef = useRef(null);
+  const navThroughPosesActionRef = useRef(null);
+  const activeNavActionRef = useRef(null);
+  const activeNavGoalIdRef = useRef(null);
   const statusSubRef = useRef(null);
   const robotSubRef = useRef(null);
   const imuSubRef = useRef(null);
@@ -2442,6 +2397,7 @@ export default function GPSMissionPlannerPage() {
       maxNativeZoom: nativeZoom,
       minNativeZoom: nativeZoom,
       updateWhenIdle: false,
+      updateWhenZooming: false,
       keepBuffer: 4
     });
 
@@ -2451,6 +2407,7 @@ export default function GPSMissionPlannerPage() {
       maxNativeZoom: 22,
       tms: true,
       attribution: "Local Ortho",
+      updateWhenZooming: false,
       keepBuffer: 4
     });
 
@@ -3869,57 +3826,45 @@ export default function GPSMissionPlannerPage() {
 	    };
 	  }, [ros, isConnected, updateRobotMarker, updateTfPoseMarker, updateNav2GoalMarker, updateNav2PlanOverlays, updateRosFrameDebugOverlay, addLog, showMissionNotice, markWaypointReached]);
 
-  // ── Publisher ─────────────────────────────────────────────────────────
-  // task_manager_node.py'nin gerçek arayüzü: /mission_segments (mission JSON),
-  // /task_manager/cancel (Empty), /task_manager/pause (SetBool servisi).
-  // Eskiden /ui/gps_waypoint'e yayın yapılıyordu ama bunu hiçbir node
-  // dinlemiyordu — mesajlar hiçbir zaman robota ulaşmıyordu.
-  const ensurePublisher = useCallback(() => {
-    if (wpPublisherRef.current) return wpPublisherRef.current;
+  // ── Nav2 action client ───────────────────────────────────────────────
+  // Action Start artık task_manager/track_executor'ı (/mission_segments)
+  // değil, doğrudan nav2'nin kendi action arayüzünü kullanıyor: tek
+  // waypoint'te /navigate_to_pose, birden fazlasında /navigate_through_poses.
+  // Önceki /mission_segments yolu nav2'ye hiç uğramıyordu.
+  const ensureNavigateAction = useCallback(single => {
     if (!ros) return null;
 
-    const pub = new ROSLIB.Topic({
-      ros,
-      name: "/mission_segments",
-      messageType: "std_msgs/String",
-      queue_size: 1
-    });
+    if (single) {
+      if (!navToPoseActionRef.current) {
+        navToPoseActionRef.current = new ROSLIB.Action({
+          ros,
+          name: "/navigate_to_pose",
+          actionType: "nav2_msgs/action/NavigateToPose"
+        });
+      }
+      return navToPoseActionRef.current;
+    }
 
-    pub.advertise();
-    wpPublisherRef.current = pub;
-
-    return pub;
+    if (!navThroughPosesActionRef.current) {
+      navThroughPosesActionRef.current = new ROSLIB.Action({
+        ros,
+        name: "/navigate_through_poses",
+        actionType: "nav2_msgs/action/NavigateThroughPoses"
+      });
+    }
+    return navThroughPosesActionRef.current;
   }, [ros]);
 
-  const ensureCancelPublisher = useCallback(() => {
-    if (cancelPublisherRef.current) return cancelPublisherRef.current;
-    if (!ros) return null;
+  const cancelActiveNavGoal = useCallback(() => {
+    const action = activeNavActionRef.current;
+    const goalId = activeNavGoalIdRef.current;
 
-    const pub = new ROSLIB.Topic({
-      ros,
-      name: "/task_manager/cancel",
-      messageType: "std_msgs/Empty",
-      queue_size: 1
-    });
+    if (action && goalId) {
+      try { action.cancelGoal(goalId); } catch { /* goal may already be finished */ }
+    }
 
-    pub.advertise();
-    cancelPublisherRef.current = pub;
-
-    return pub;
-  }, [ros]);
-
-  const ensurePauseService = useCallback(() => {
-    if (pauseServiceRef.current) return pauseServiceRef.current;
-    if (!ros) return null;
-
-    pauseServiceRef.current = new ROSLIB.Service({
-      ros,
-      name: "/task_manager/pause",
-      serviceType: "std_srvs/SetBool"
-    });
-
-    return pauseServiceRef.current;
-  }, [ros]);
+    activeNavGoalIdRef.current = null;
+  }, []);
 
   const startMission = useCallback(() => {
     if (!ros || !isConnected || waypoints.length === 0) return;
@@ -3936,97 +3881,105 @@ export default function GPSMissionPlannerPage() {
       return;
     }
 
-    const pub = ensurePublisher();
+    cancelActiveNavGoal();
 
-    if (!pub) return;
+    const single = waypoints.length === 1;
+    const action = ensureNavigateAction(single);
 
-    const buildGpsWaypoint = wp => {
-      const payload = {
-        latitude: wp.lat,
-        longitude: wp.lng
-      };
+    if (!action) return;
 
-      if (Number.isFinite(wp.altitude)) {
-        payload.altitude = wp.altitude;
-      }
-
-      return payload;
-    };
-
-    const payload = JSON.stringify({
-      mission_id: `web-${Date.now()}`,
-      segments_json: [
-        {
-          order_index: 0,
-          action: "move",
-          gpsWaypoints: waypoints.map(buildGpsWaypoint)
-        }
-      ]
-    });
+    const poses = waypointsToMapPoses(waypoints);
+    const goalMsg = single
+      ? { pose: poses[0], behavior_tree: "" }
+      : { poses, behavior_tree: "" };
+    const actionName = single ? "/navigate_to_pose" : "/navigate_through_poses";
 
     reachedWaypointIndexesRef.current = new Set();
     setReachedWaypointIndexes(new Set());
     setMissionStopped(false);
-    pub.publish({ data: payload });
-    addLog("info", `${waypoints.length} waypoint araca gonderildi (/mission_segments)`);
-    showMissionNotice(`Action Start: ${waypoints.length} waypoint araca gönderildi`, "active");
+
+    activeNavActionRef.current = action;
+    activeNavGoalIdRef.current = action.sendGoal(
+      goalMsg,
+      () => {
+        addLog("info", `Nav2 hedefine ulaşıldı (${actionName})`);
+        showMissionNotice("Nav2: hedefe ulaşıldı", "active");
+        activeNavGoalIdRef.current = null;
+        publishUiState({
+          notice: { text: "Nav2: hedefe ulaşıldı", level: "active" },
+          log: { level: "info", text: `Nav2 hedefine ulaşıldı (${actionName})` }
+        });
+      },
+      () => {},
+      error => {
+        addLog("warn", `Nav2 hedefi başarısız: ${error}`);
+        showMissionNotice(`Nav2 hedefi başarısız: ${error}`, "danger");
+        activeNavGoalIdRef.current = null;
+        publishUiState({
+          notice: { text: `Nav2 hedefi başarısız: ${error}`, level: "danger" },
+          log: { level: "warn", text: `Nav2 hedefi başarısız: ${error}` }
+        });
+      }
+    );
+
+    addLog("info", `${waypoints.length} waypoint nav2'ye gönderildi (${actionName})`);
+    showMissionNotice(`Action Start: ${waypoints.length} waypoint nav2'ye gönderildi`, "active");
     publishUiState({
       waypoints,
       missionStopped: false,
-      notice: { text: `Action Start: ${waypoints.length} waypoint araca gönderildi`, level: "active" },
-      log: { level: "info", text: `${waypoints.length} waypoint araca gonderildi (/mission_segments)` }
+      notice: { text: `Action Start: ${waypoints.length} waypoint nav2'ye gönderildi`, level: "active" },
+      log: { level: "info", text: `${waypoints.length} waypoint nav2'ye gönderildi (${actionName})` }
     });
-  }, [ros, isConnected, waypoints, robotPoseInfo, ensurePublisher, addLog, showMissionNotice, publishUiState]);
+  }, [ros, isConnected, waypoints, robotPoseInfo, ensureNavigateAction, cancelActiveNavGoal, addLog, showMissionNotice, publishUiState]);
 
+  // STOP, etkin nav2 hedefini iptal eder (robot durur); RESUME aynı
+  // waypoint'leri tekrar nav2'ye gönderir. Nav2 action arayüzünde gerçek
+  // bir "duraklat" yok, bu yüzden durdur+yeniden-gönder ile taklit ediliyor.
   const toggleMissionStop = useCallback(() => {
     if (!ros || !isConnected) return;
 
-    const srv = ensurePauseService();
-
-    if (!srv) return;
-
     const nextStopped = !missionStopped;
-    const noticeText = nextStopped
-      ? "PAUSE komutu gönderildi: görev duraklatılıyor"
-      : "RESUME komutu gönderildi: görev devam ediyor";
 
-    srv.callService(
-      { data: nextStopped },
-      () => {},
-      err => addLog("danger", `/task_manager/pause servis hatası: ${err}`)
-    );
+    if (nextStopped) {
+      cancelActiveNavGoal();
+    }
+
+    const noticeText = nextStopped
+      ? "STOP: nav2 hedefi iptal edildi"
+      : "RESUME: waypoint'ler nav2'ye yeniden gönderiliyor";
+
     setMissionStopped(nextStopped);
-    addLog(nextStopped ? "warn" : "info", `${nextStopped ? "PAUSE" : "RESUME"} komutu gonderildi`);
+    addLog(nextStopped ? "warn" : "info", noticeText);
     showMissionNotice(noticeText, nextStopped ? "warn" : "active");
     publishUiState({
       missionStopped: nextStopped,
       notice: { text: noticeText, level: nextStopped ? "warn" : "active" },
-      log: { level: nextStopped ? "warn" : "info", text: `${nextStopped ? "PAUSE" : "RESUME"} komutu gonderildi` }
+      log: { level: nextStopped ? "warn" : "info", text: noticeText }
     });
-  }, [ros, isConnected, ensurePauseService, missionStopped, addLog, showMissionNotice, publishUiState]);
+
+    if (!nextStopped) {
+      startMission();
+    }
+  }, [ros, isConnected, missionStopped, cancelActiveNavGoal, startMission, addLog, showMissionNotice, publishUiState]);
 
   const cancelMission = useCallback(() => {
     if (!ros || !isConnected) return;
 
-    const pub = ensureCancelPublisher();
-
-    if (!pub) return;
-
-    pub.publish({});
+    cancelActiveNavGoal();
     setMissionStopped(false);
     globalPlanRef.current = [];
     localPlanRef.current = [];
     setGlobalPlanInfo(null);
     setLocalPlanInfo(null);
     updateNav2PlanOverlays();
-    addLog("warn", "Action Cancel komutu gonderildi (/task_manager/cancel)");
+    addLog("warn", "Action Cancel: nav2 hedefi iptal edildi");
     showMissionNotice("Action Cancel komutu gönderildi", "muted");
     publishUiState({
       missionStopped: false,
       notice: { text: "Action Cancel komutu gönderildi", level: "muted" },
-      log: { level: "warn", text: "Action Cancel komutu gonderildi (/task_manager/cancel)" }
+      log: { level: "warn", text: "Action Cancel: nav2 hedefi iptal edildi" }
     });
-  }, [ros, isConnected, ensureCancelPublisher, updateNav2PlanOverlays, addLog, showMissionNotice, publishUiState]);
+  }, [ros, isConnected, cancelActiveNavGoal, updateNav2PlanOverlays, addLog, showMissionNotice, publishUiState]);
 
   // ── Waypoint ops ──────────────────────────────────────────────────────
   const removeWaypoint = i => {
@@ -4059,83 +4012,6 @@ export default function GPSMissionPlannerPage() {
       return nextWaypoints;
     });
   };
-
-  const resetHeadingCorrection = useCallback(() => {
-    setCompassHeadingInput("");
-    setLastCompassHeadingDeg(null);
-    const text = "Pusula girişi sıfırlandı";
-    addLog("imu", text);
-    showMissionNotice(text, "active");
-  }, [addLog, showMissionNotice]);
-
-  const sendRosCompassHeading = useCallback((measuredCompassHeading) => {
-    if (!ros || !isConnected) {
-      const text = "ROS bağlı değil: pusula değeri ROS'a gönderilemedi";
-      addLog("warn", text);
-      showMissionNotice(text, "warn");
-      return;
-    }
-
-    const service = new ROSLIB.Service({
-      ros,
-      name: `${ROS_HEADING_OFFSET_NODE}/set_parameters`,
-      serviceType: "rcl_interfaces/srv/SetParameters"
-    });
-
-    service.callService(
-      {
-        parameters: [
-          {
-            name: ROS_HEADING_OFFSET_PARAM,
-            value: {
-              type: 3,
-              double_value: measuredCompassHeading
-            }
-          }
-        ]
-      },
-      result => {
-        const paramResult = result?.results?.[0];
-
-        if (paramResult && paramResult.successful === false) {
-          const text = `ROS pusula değeri uygulanamadı: ${paramResult.reason || "parametre reddedildi"}`;
-          addLog("warn", text);
-          showMissionNotice(text, "danger");
-          return;
-        }
-
-        const text = `ROS pusula değeri gönderildi: ${measuredCompassHeading.toFixed(1)}°`;
-        addLog("imu", `${text} (${ROS_HEADING_OFFSET_NODE}.${ROS_HEADING_OFFSET_PARAM})`);
-        showMissionNotice(text, "active");
-      },
-      error => {
-        const reason = typeof error === "string" ? error : error?.message || "servis çağrısı başarısız";
-        const text = `ROS pusula değeri uygulanamadı: ${reason}`;
-        addLog("warn", text);
-        showMissionNotice(text, "danger");
-      }
-    );
-  }, [addLog, isConnected, ros, showMissionNotice]);
-
-  const calibrateHeadingFromInput = useCallback(() => {
-    const value = Number(compassHeadingInput);
-
-    if (!Number.isFinite(value)) {
-      const text = "Aracın önünün baktığı pusula değerini derece olarak gir";
-      addLog("warn", text);
-      showMissionNotice(text, "warn");
-      return;
-    }
-
-    const measuredCompassHeading = normalizeBearingDeg(value);
-    setLastCompassHeadingDeg(measuredCompassHeading);
-    sendRosCompassHeading(measuredCompassHeading);
-  }, [
-    addLog,
-    compassHeadingInput,
-    sendRosCompassHeading,
-    showMissionNotice
-  ]);
 
   const updateMode = (i, v) => {
     setWaypoints(prev => {
@@ -5123,48 +4999,6 @@ export default function GPSMissionPlannerPage() {
             +
           </div>
 
-          <div className="gmp-heading-calibration">
-            <div style={{ color: "#9ea0a8", fontWeight: 800 }}>Pusulaya Göre Araç Önü Kalibrasyonu</div>
-            <div className="gmp-heading-grid">
-              <div>Map yaw: {mapYawDeg !== null ? `${mapYawDeg.toFixed(1)}°` : "-"}</div>
-              <div>TF bearing: {displayCompassBearingDeg !== null ? `${displayCompassBearingDeg.toFixed(1)}°` : "-"}</div>
-              <div>IMU yaw: {imuInfo ? `${radToDeg(imuInfo.yaw).toFixed(1)}°` : "-"}</div>
-              <div>IMU bearing: {imuInfo ? `${imuInfo.bearing.toFixed(1)}°` : "-"}</div>
-              <div>Declination: {radToDeg(NAVSAT_MAGNETIC_DECLINATION_RAD).toFixed(1)}°</div>
-              <div>Yaw offset: {radToDeg(NAVSAT_YAW_OFFSET_RAD).toFixed(1)}°</div>
-              <div>Base Map→ENU: {NAVSAT_MAP_TO_ENU_OFFSET_DEG.toFixed(1)}°</div>
-              <div>Girilen pusula: {lastCompassHeadingDeg !== null ? `${lastCompassHeadingDeg.toFixed(1)}°` : "-"}</div>
-              <div>ROS'a gönderilen: {lastCompassHeadingDeg !== null ? `${lastCompassHeadingDeg.toFixed(1)}°` : "-"}</div>
-            </div>
-            <div className="gmp-heading-controls">
-              <input
-                type="number"
-                step="0.1"
-                value={compassHeadingInput}
-                onChange={e => setCompassHeadingInput(e.target.value)}
-                placeholder="örn. 273.5"
-                title="Aracın önünün harici pusulada/telefon pusulasında baktığı değer. 0=Kuzey, 90=Doğu, 180=Güney, 270=Batı"
-              />
-              <button
-                type="button"
-                onClick={calibrateHeadingFromInput}
-                title="Girilen araç önü pusula değerine göre kalibre et"
-              >
-                Kalibre Et
-              </button>
-              <button
-                type="button"
-                onClick={resetHeadingCorrection}
-                title="Kalibrasyon düzeltmesini sıfırla"
-              >
-                Sıfırla
-              </button>
-            </div>
-            <div className="gmp-heading-note">
-              Buraya düzeltme açısı değil, aracın burnunun harici pusulada/telefon pusulasında baktığı değeri yaz. Örn: araç önü batıya bakıyorsa 270 gir. Kalibre Et bu değeri ROS parametresine gönderir; oklar ROS'tan gelen güncel TF/debug bilgileriyle yeniden çizilir.
-            </div>
-          </div>
-
           <div
             style={{
               position: "absolute",
@@ -6055,7 +5889,6 @@ export default function GPSMissionPlannerPage() {
 	              <DebugRow label="raw_tf_yaw_deg" value={fmtDeg(mapYawDeg, 2)} />
 	              <DebugRow label="ui_display_yaw_deg" value={debugDisplayYawDeg !== null ? `${debugDisplayYawDeg.toFixed(2)}°` : "-"} />
               <DebugRow label="tf_compass_bearing" value={displayCompassBearingDeg !== null ? `${displayCompassBearingDeg.toFixed(2)}°` : "-"} />
-              <DebugRow label="last_entered_compass_heading" value={lastCompassHeadingDeg !== null ? `${lastCompassHeadingDeg.toFixed(2)}°` : "-"} />
               <DebugRow label="magnetic_declination_deg" value={`${radToDeg(NAVSAT_MAGNETIC_DECLINATION_RAD).toFixed(2)}°`} />
               <DebugRow label="yaw_offset_deg" value={`${radToDeg(NAVSAT_YAW_OFFSET_RAD).toFixed(2)}°`} />
               <DebugRow label="base_map_to_enu_offset_deg" value={`${NAVSAT_MAP_TO_ENU_OFFSET_DEG.toFixed(2)}°`} />
