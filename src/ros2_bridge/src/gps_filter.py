@@ -44,12 +44,11 @@ def filter_heading_to_enu_yaw(heading_rad: float) -> float:
     """Farm-ng filter servisinin north-referanslı heading'ini (0=kuzey) ENU/ROS
     yaw'a (0=doğu/+x, 90°=kuzey/+y) çevirir.
 
-    Doğrudan /cmd_vel_nav testiyle (nav2'siz, ileri komut→ileri hareket)
-    motor/cmd_vel zincirinin doğru olduğu doğrulandı; bu da önceki sürüş
-    testiyle ölçülen -90° offset'in confound olmadığını, gerçek bir
-    north-referans/ENU-referans uyuşmazlığı olduğunu gösteriyor.
+    Düz, dönüşsüz bir sürüş testiyle (cmd_vel/odom: geri; /rtk/odom x,y izi:
+    raporlanan yaw ile AYNI yönde, yani ileriymiş gibi) ölçüldü: önceki
+    "-90°" offset tam 180° tersti. Doğrusu "+90°".
     """
-    return heading_rad - pi / 2
+    return heading_rad + pi / 2
 
 
 class MultiClientSubscriber(Node):
