@@ -68,7 +68,7 @@ from ukf_wrapper import UkFilterWrapper  # noqa: E402
 ROBOT_CONFIG_PATH = "/mnt/service_config/robot_config.json"
 
 GPS_PORT, GPS_BAUD = "/dev/ttyACM0", 38400
-OAK_IP = "10.95.76.10"  # NOT: ag uzerinde 10.95.76.10 ve .11 de gorulebilir --
+OAK_IP = "10.95.76.11"  # NOT: ag uzerinde 10.95.76.10 ve .11 de gorulebilir --
                          # dai.Device.getAllAvailableDevices() ile dogrula, gerekirse degistir.
 CAN_ID = "can0"
 
@@ -103,7 +103,7 @@ MAX_SPEED = 0.5           # m/s hard cap (guvenlik)
 MAX_ANGULAR = 0.5         # rad/s hard cap
 
 # UKF GPS olcum gurultusu ayari -- bkz. SingleAntennaUkFilterWrapper.handle_gps
-GPS_STD_DEV_SCALE = 0.5   # hAcc'in carpani: dusuk = filtre GPS'e daha cok guvenir (daha hizli yakinsama, biraz daha titrek)
+GPS_STD_DEV_SCALE = 0.15  # hAcc'in carpani: dusuk = filtre GPS'e daha cok guvenir (daha hizli yakinsama, biraz daha titrek)
 RTK_MIN_STD_DEV_M = 0.01  # sayisal guvenlik alt siniri (RTK ile hAcc ~0'a yaklasinca)
 
 # NOT: headMot (GPS course-over-ground) heading icin KULLANILMIYOR.
