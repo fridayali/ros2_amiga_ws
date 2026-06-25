@@ -1673,56 +1673,6 @@ function resampleLatLngPath(path, spacingM, requestedCount = 0) {
   return result;
 }
 
-function carrierSolutionText(carrSoln) {
-  if (!Number.isFinite(carrSoln)) return "none";
-  if (carrSoln === 0) return "none";
-  if (carrSoln === 1) return "float";
-  if (carrSoln === 2) return "fixed";
-  return "none";
-}
-
-function parseUbloxNavPvt(msg) {
-  const flags = toNum(msg?.flags);
-  const carrSolnRaw = firstNum(msg, ["carr_soln", "carrSoln", "carrier_solution", "carrierSolution"]);
-  const carrSoln = carrSolnRaw !== null
-    ? carrSolnRaw
-    : flags !== null
-      ? (flags >> 6) & 0x03
-      : null;
-
-  return {
-    rtkStatus: carrierSolutionText(carrSoln),
-    flags,
-    stamp: msg?.header?.stamp || null,
-    ts: Date.now()
-  };
-}
-
-function parseRtkStatusFromText(text) {
-  const value = String(text || "").toLowerCase();
-  if (!value) return null;
-
-  const mentionsRtk = /\b(rtk|carrier|carr[_\s-]?soln|carrsoln|fix[_\s-]?(?:quality|type))\b/.test(value);
-  if (!mentionsRtk) return null;
-
-  const fixQualityMatch = value.match(/\bfix[_\s-]?quality\s*[:=]\s*([0-9]+)\b/);
-  if (fixQualityMatch) {
-    const quality = Number(fixQualityMatch[1]);
-    if (quality === 4) return "fixed";
-    if (quality === 5) return "float";
-    return "none";
-  }
-
-  const numericMatch = value.match(/\b(?:carr[_\s-]?soln|carrsoln|carrier(?:\s+solution)?|rtk)\s*[:=]\s*([0-2])\b/);
-  if (numericMatch) return carrierSolutionText(Number(numericMatch[1]));
-
-  if (/\b(no(?:ne)?|invalid|single|standalone|not\s+fixed|no\s+rtk|no\s+fix)\b/.test(value)) return "none";
-  if (/\b(float|floating|rtkfloat|rtk_float|dgps)\b/.test(value)) return "float";
-  if (/\b(fixed|fix|rtkfix|rtk_fixed|rtk\s+fixed)\b/.test(value)) return "fixed";
-
-  return null;
-}
-
 function checkColors(level) {
   if (level === "ok") return { fg: "#39ff14", bg: "rgba(57,255,20,.07)", border: "rgba(57,255,20,.35)" };
   if (level === "warn") return { fg: "#fbbf24", bg: "rgba(251,191,36,.08)", border: "rgba(251,191,36,.35)" };
@@ -1868,7 +1818,6 @@ export default function GPSMissionPlannerPage() {
   const [gpsOdomInfo, setGpsOdomInfo] = useState(null);
   const [globalOdomInfo, setGlobalOdomInfo] = useState(null);
   const [nav2GoalInfo, setNav2GoalInfo] = useState(null);
-  const [rtkInfo, setRtkInfo] = useState(null);
   const [debugPoints, setDebugPoints] = useState([]);
   const [diagLogs, setDiagLogs] = useState([]);
   const [missionNotice, setMissionNotice] = useState(null);
@@ -2005,9 +1954,6 @@ export default function GPSMissionPlannerPage() {
   const nav2GoalSubRef = useRef(null);
   const globalPlanSubRef = useRef(null);
   const localPlanSubRef = useRef(null);
-  const rtkSubRef = useRef(null);
-  const rtkStatusSubRef = useRef(null);
-  const rtkRosoutSubRef = useRef(null);
   const gpsCoverageStatusSubRef = useRef(null);
   const gpsCoverageDebugSubRef = useRef(null);
   const gpsCoveragePathSubRef = useRef(null);
@@ -3465,84 +3411,6 @@ export default function GPSMissionPlannerPage() {
       // Nav2 local plan topic is optional.
     }
 
-    try {
-      rtkSubRef.current?.unsubscribe();
-
-      const sub = new ROSLIB.Topic({
-        ros,
-        name: "/ublox/navpvt",
-        messageType: "ublox_msgs/NavPVT",
-        queue_length: 1,
-        throttle_rate: 500
-      });
-
-      rtkSubRef.current = sub;
-      sub.subscribe(msg => {
-        setRtkInfo({
-          ...parseUbloxNavPvt(msg),
-          source: "/ublox/navpvt"
-        });
-      });
-    } catch {
-      // u-blox NAV-PVT is optional; /fix still drives robot position.
-    }
-
-    try {
-      rtkStatusSubRef.current?.unsubscribe();
-
-      const sub = new ROSLIB.Topic({
-        ros,
-        name: "/rtk_status",
-        messageType: "std_msgs/String",
-        queue_length: 1,
-        throttle_rate: 500
-      });
-
-      rtkStatusSubRef.current = sub;
-      sub.subscribe(msg => {
-        const text = String(msg?.data || "");
-        const rtkStatus = parseRtkStatusFromText(text);
-        if (!rtkStatus) return;
-
-        setRtkInfo({
-          rtkStatus,
-          source: "/rtk_status",
-          detail: text,
-          ts: Date.now()
-        });
-      });
-    } catch {
-      // Rover GPS RTK status topic is optional on older robot builds.
-    }
-
-    try {
-      rtkRosoutSubRef.current?.unsubscribe();
-
-      const sub = new ROSLIB.Topic({
-        ros,
-        name: "/rosout",
-        messageType: "rcl_interfaces/msg/Log",
-        queue_length: 10,
-        throttle_rate: 200
-      });
-
-      rtkRosoutSubRef.current = sub;
-      sub.subscribe(msg => {
-        const text = String(msg?.msg || "");
-        const rtkStatus = parseRtkStatusFromText(text);
-        if (!rtkStatus) return;
-
-        setRtkInfo({
-          rtkStatus,
-          source: msg?.name ? `/rosout:${msg.name}` : "/rosout",
-          stamp: msg?.stamp || null,
-          ts: Date.now()
-        });
-      });
-    } catch {
-      // ROS logs are optional; direct GPS topics still drive the page when present.
-    }
-
 	    try {
 	      gpsCoverageStatusSubRef.current?.unsubscribe();
 
@@ -3816,9 +3684,6 @@ export default function GPSMissionPlannerPage() {
       try { nav2GoalSubRef.current?.unsubscribe(); } catch { /* ignore unsubscribe errors */ }
       try { globalPlanSubRef.current?.unsubscribe(); } catch { /* ignore unsubscribe errors */ }
       try { localPlanSubRef.current?.unsubscribe(); } catch { /* ignore unsubscribe errors */ }
-	      try { rtkSubRef.current?.unsubscribe(); } catch { /* ignore unsubscribe errors */ }
-	      try { rtkStatusSubRef.current?.unsubscribe(); } catch { /* ignore unsubscribe errors */ }
-	      try { rtkRosoutSubRef.current?.unsubscribe(); } catch { /* ignore unsubscribe errors */ }
 	      try { gpsCoverageStatusSubRef.current?.unsubscribe(); } catch { /* ignore unsubscribe errors */ }
 	      try { gpsCoverageDebugSubRef.current?.unsubscribe(); } catch { /* ignore unsubscribe errors */ }
 	      try { gpsCoveragePathSubRef.current?.unsubscribe(); } catch { /* ignore unsubscribe errors */ }
@@ -4812,7 +4677,6 @@ export default function GPSMissionPlannerPage() {
   const gpsTfDistance = gpsTfDx !== null && gpsTfDy !== null
     ? Math.hypot(gpsTfDx, gpsTfDy)
     : null;
-  const rtkStatusText = rtkInfo?.rtkStatus || "none";
   const lastDebugPoint = debugPoints.length ? readDebugPoint(debugPoints[debugPoints.length - 1]) : null;
   const missionColors = missionNoticeColors(missionNotice?.level);
   const missionReadiness = useMemo(() => buildMissionReadiness({
@@ -5838,7 +5702,6 @@ export default function GPSMissionPlannerPage() {
                 value={covarianceText(rawGpsInfo?.positionCovariance)}
                 title={covarianceText(rawGpsInfo?.positionCovariance)}
               />
-              <DebugRow label="RTK" value={rtkStatusText} />
               <DebugRow label="son mesaj" value={rosStampText(rawGpsInfo?.stamp, rawGpsInfo?.ts)} />
             </DebugSection>
 
