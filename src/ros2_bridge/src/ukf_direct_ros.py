@@ -471,18 +471,29 @@ def _imu_loop_inner(wrapper: UkFilterWrapper) -> None:
         q = device.getOutputQueue(name="imu", maxSize=50, blocking=False)
         while True:
             data = q.get()
+            packets = data.packets
+            if not packets:
+                continue
+            # NOT: OAK'in kendi dahili saati (g.timestamp) host'un time.monotonic()'i
+            # ile AYNI epoch'ta DEGIL -- step_process() bu stamp'i GPS/CAN'in
+            # host-saatli stamp'leriyle KARISIK kullaniyor, farkli clock domain'leri
+            # karistirmak dt hesaplarini bozup heading/pozisyon entegrasyonunu
+            # saçmalatabiliyor. Batch icindeki ORANTILI farklari (gercek ornekleme
+            # araligi) koruyoruz ama tum batch'i host_now'a sabitliyoruz.
+            host_now = time.monotonic()
+            last_device_ts = packets[-1].gyroscope.timestamp.get().total_seconds()
             msg = oak_pb2.OakImuPackets()
-            for packet in data.packets:
+            for packet in packets:
                 g, a = packet.gyroscope, packet.acceleroMeter
                 p = msg.packets.add()
                 p.gyro_packet.gyro.x = g.x
                 p.gyro_packet.gyro.y = g.y
                 p.gyro_packet.gyro.z = g.z
-                p.gyro_packet.timestamp = g.timestamp.get().total_seconds()
+                p.gyro_packet.timestamp = host_now - (last_device_ts - g.timestamp.get().total_seconds())
                 p.accelero_packet.accelero.x = a.x
                 p.accelero_packet.accelero.y = a.y
                 p.accelero_packet.accelero.z = a.z
-                p.accelero_packet.timestamp = a.timestamp.get().total_seconds()
+                p.accelero_packet.timestamp = host_now - (last_device_ts - a.timestamp.get().total_seconds())
             with _lock:
                 wrapper.handle_imu(msg)
 
