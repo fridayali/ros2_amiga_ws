@@ -2,10 +2,9 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, SetEnvironmentVariable
-from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration, PythonExpression
-from launch_ros.actions import Node, SetParameter
-from launch_ros.descriptions import ParameterFile
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import ComposableNodeContainer, SetParameter
+from launch_ros.descriptions import ComposableNode, ParameterFile
 from nav2_common.launch import RewrittenYaml
 
 
@@ -16,8 +15,8 @@ def generate_launch_description():
     use_sim_time  = LaunchConfiguration('use_sim_time')
     autostart     = LaunchConfiguration('autostart')
     params_file   = LaunchConfiguration('params_file')
-    use_respawn   = LaunchConfiguration('use_respawn')
     log_level     = LaunchConfiguration('log_level')
+    container_name = LaunchConfiguration('container_name')
 
     lifecycle_nodes = [
         'controller_server',
@@ -42,6 +41,80 @@ def generate_launch_description():
         allow_substs=True,
     )
 
+    # Nav2'nin resmi composition tavsiyesi: tüm server'ları ayrı process
+    # değil, TEK component container içinde composable node olarak çalıştır.
+    # Bu, node'lar arası DDS serileştirme overhead'ini intra-process
+    # communication ile ortadan kaldırır ve process-level context-switch
+    # yükünü azaltır — Jetson gibi CPU kısıtlı donanımda önemli kazanç
+    # (https://docs.nav2.org/tuning/index.html). respawn/use_respawn artık
+    # yok: tek bir component crash olursa tüm container etkilenir, bu
+    # composition'ın bilinen tradeoff'u — container'ın kendisi
+    # respawn=true ile yeniden başlar.
+    composable_nodes = [
+        ComposableNode(
+            package='nav2_controller', plugin='nav2_controller::ControllerServer',
+            name='controller_server',
+            parameters=[configured_params],
+            remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+            extra_arguments=[{'use_intra_process_comms': True}],
+        ),
+        ComposableNode(
+            package='nav2_smoother', plugin='nav2_smoother::SmootherServer',
+            name='smoother_server',
+            parameters=[configured_params],
+            remappings=remappings,
+            extra_arguments=[{'use_intra_process_comms': True}],
+        ),
+        ComposableNode(
+            package='nav2_planner', plugin='nav2_planner::PlannerServer',
+            name='planner_server',
+            parameters=[configured_params],
+            remappings=remappings,
+            extra_arguments=[{'use_intra_process_comms': True}],
+        ),
+        ComposableNode(
+            package='nav2_behaviors', plugin='nav2_behaviors::BehaviorServer',
+            name='behavior_server',
+            parameters=[configured_params],
+            remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+            extra_arguments=[{'use_intra_process_comms': True}],
+        ),
+        ComposableNode(
+            package='nav2_bt_navigator', plugin='nav2_bt_navigator::BtNavigator',
+            name='bt_navigator',
+            parameters=[configured_params],
+            remappings=remappings,
+            extra_arguments=[{'use_intra_process_comms': True}],
+        ),
+        ComposableNode(
+            package='nav2_waypoint_follower', plugin='nav2_waypoint_follower::WaypointFollower',
+            name='waypoint_follower',
+            parameters=[configured_params],
+            remappings=remappings,
+            extra_arguments=[{'use_intra_process_comms': True}],
+        ),
+        ComposableNode(
+            package='nav2_velocity_smoother', plugin='nav2_velocity_smoother::VelocitySmoother',
+            name='velocity_smoother',
+            parameters=[configured_params],
+            remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+            extra_arguments=[{'use_intra_process_comms': True}],
+        ),
+        ComposableNode(
+            package='nav2_collision_monitor', plugin='nav2_collision_monitor::CollisionMonitor',
+            name='collision_monitor',
+            parameters=[configured_params],
+            remappings=remappings,
+            extra_arguments=[{'use_intra_process_comms': True}],
+        ),
+        ComposableNode(
+            package='nav2_lifecycle_manager', plugin='nav2_lifecycle_manager::LifecycleManager',
+            name='lifecycle_manager_navigation',
+            parameters=[{'autostart': autostart}, {'node_names': lifecycle_nodes}],
+            extra_arguments=[{'use_intra_process_comms': True}],
+        ),
+    ]
+
     return LaunchDescription([
         SetEnvironmentVariable('RCUTILS_LOGGING_BUFFERED_STREAM', '1'),
 
@@ -50,70 +123,22 @@ def generate_launch_description():
         DeclareLaunchArgument('autostart',    default_value='true'),
         DeclareLaunchArgument('params_file',
             default_value=os.path.join(pkg_dir, 'config', 'nav2_params.yaml')),
-        DeclareLaunchArgument('use_respawn',  default_value='true'),
         DeclareLaunchArgument('log_level',    default_value='info'),
+        DeclareLaunchArgument('container_name', default_value='nav2_container'),
 
         GroupAction(actions=[
             SetParameter('use_sim_time', use_sim_time),
 
-            Node(package='nav2_controller',   executable='controller_server',
-                 output='screen', respawn=use_respawn, respawn_delay=2.0,
-                 parameters=[configured_params],
-                 arguments=['--ros-args', '--log-level', log_level],
-                 remappings=remappings + [('cmd_vel', 'cmd_vel_nav')]),
-
-            Node(package='nav2_smoother',     executable='smoother_server',
-                 name='smoother_server', output='screen',
-                 respawn=use_respawn, respawn_delay=2.0,
-                 parameters=[configured_params],
-                 arguments=['--ros-args', '--log-level', log_level],
-                 remappings=remappings),
-
-            Node(package='nav2_planner',      executable='planner_server',
-                 name='planner_server', output='screen',
-                 respawn=use_respawn, respawn_delay=2.0,
-                 parameters=[configured_params],
-                 arguments=['--ros-args', '--log-level', log_level],
-                 remappings=remappings),
-
-            Node(package='nav2_behaviors',    executable='behavior_server',
-                 name='behavior_server', output='screen',
-                 respawn=use_respawn, respawn_delay=2.0,
-                 parameters=[configured_params],
-                 arguments=['--ros-args', '--log-level', log_level],
-                 remappings=remappings + [('cmd_vel', 'cmd_vel_nav')]),
-
-            Node(package='nav2_bt_navigator', executable='bt_navigator',
-                 name='bt_navigator', output='screen',
-                 respawn=use_respawn, respawn_delay=2.0,
-                 parameters=[configured_params],
-                 arguments=['--ros-args', '--log-level', log_level],
-                 remappings=remappings),
-
-            Node(package='nav2_waypoint_follower', executable='waypoint_follower',
-                 name='waypoint_follower', output='screen',
-                 respawn=use_respawn, respawn_delay=2.0,
-                 parameters=[configured_params],
-                 arguments=['--ros-args', '--log-level', log_level],
-                 remappings=remappings),
-
-            Node(package='nav2_velocity_smoother', executable='velocity_smoother',
-                 name='velocity_smoother', output='screen',
-                 respawn=use_respawn, respawn_delay=2.0,
-                 parameters=[configured_params],
-                 arguments=['--ros-args', '--log-level', log_level],
-                 remappings=remappings + [('cmd_vel', 'cmd_vel_nav')]),
-
-            Node(package='nav2_collision_monitor', executable='collision_monitor',
-                 name='collision_monitor', output='screen',
-                 respawn=use_respawn, respawn_delay=2.0,
-                 parameters=[configured_params],
-                 arguments=['--ros-args', '--log-level', log_level],
-                 remappings=remappings),
-
-            Node(package='nav2_lifecycle_manager', executable='lifecycle_manager',
-                 name='lifecycle_manager_navigation', output='screen',
-                 arguments=['--ros-args', '--log-level', log_level],
-                 parameters=[{'autostart': autostart}, {'node_names': lifecycle_nodes}]),
+            ComposableNodeContainer(
+                name=container_name,
+                namespace=namespace,
+                package='rclcpp_components',
+                executable='component_container_mt',
+                composable_node_descriptions=composable_nodes,
+                arguments=['--ros-args', '--log-level', log_level],
+                output='screen',
+                respawn=True,
+                respawn_delay=2.0,
+            ),
         ]),
     ])
