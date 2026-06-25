@@ -31,16 +31,24 @@ ROBOT (Jetson) UZERINDE, HOST'ta /farm_ng_image/venv ile calistirilmali
 (container icinde DEGIL -- depthai/ukf_wrapper bu venv'e ozel):
     /farm_ng_image/venv/bin/python3 ukf_direct_ros.py
 
+Ayrica bir NTRIP client thread'i, RTK duzeltmelerini (RTCM3) kullanicinin
+kendi NTRIP sunucusundan (bkz. NTRIP_HOST/PORT/USERNAME/PASSWORD/MOUNTPOINT)
+cekip GPS seri portuna yazar -- bu, GPS'in standalone (~0.5-1m hAcc) yerine
+RTK FIXED (~1-2cm hAcc) calismasini saglar, GPS_STD_DEV_SCALE carpani da
+bu kucuk hAcc'e otomatik uyum saglar.
+
 Onkosul:
   - /mnt/managed_home/.../robot_config.json mevcut (kalibrasyon).
   - farm-ng'nin gps+imu+canbus servisleri durdurulmus.
   - roslibpy host venv'ine kurulu (pip install roslibpy).
   - rosbridge_websocket container icinde port 9090'da calisiyor
     (network_mode: host sayesinde host'tan da localhost:9090 erisilir).
+  - NTRIP sunucusuna (NTRIP_HOST:NTRIP_PORT) agdan erisim var.
 """
 from __future__ import annotations
 
 import argparse
+import base64
 import math
 import socket
 import struct
@@ -95,6 +103,13 @@ GPS_PORT, GPS_BAUD = "/dev/ttyACM0", 38400
 OAK_IP = "10.95.76.11"  # NOT: ag uzerinde 10.95.76.10 ve .11 de gorulebilir --
                          # dai.Device.getAllAvailableDevices() ile dogrula, gerekirse degistir.
 CAN_ID = "can0"
+
+# NTRIP/RTK -- kullanicinin kendi NTRIP sunucusu (C++ node'undaki varsayilanlar).
+NTRIP_HOST = "10.10.10.109"
+NTRIP_PORT = 2101
+NTRIP_USERNAME = "agrobrain"
+NTRIP_PASSWORD = "agrobrain"
+NTRIP_MOUNTPOINT = "ANKARA"
 
 ROSBRIDGE_HOST = "localhost"
 ROSBRIDGE_PORT = 9090
@@ -213,6 +228,11 @@ TPDO1_COB_ID = 0x180 | 0xE
 
 _lock = threading.Lock()   # UkFilterWrapper C++ state tek seferde 1 thread'den beslensin
 
+# GPS seri portuna NTRIP'ten gelen RTCM3 verisini yazmak icin paylasilan referans --
+# gps_loop acar/kapatir, ntrip_loop sadece yazar (okuma gps_loop'un kendi thread'inde).
+_serial_write_lock = threading.Lock()
+_gps_serial_ref: dict = {"ser": None}
+
 # En son ham GPS lat/lon/hacc (UKF'in kendi ic anchor'undan BAGIMSIZ, /gps/fix icin)
 _last_raw_gps = {"lat_deg": None, "lon_deg": None, "alt_m": 0.0, "hacc_m": None, "fix_type": 0}
 
@@ -272,12 +292,16 @@ def gps_loop(wrapper: UkFilterWrapper) -> None:
             _gps_loop_inner(wrapper)
         except (serial.SerialException, OSError) as e:
             print(f"\n[gps] hata, 2s sonra yeniden baglaniliyor: {e}")
+            with _serial_write_lock:
+                _gps_serial_ref["ser"] = None
             time.sleep(2.0)
 
 
 def _gps_loop_inner(wrapper: UkFilterWrapper) -> None:
     ser = serial.Serial(GPS_PORT, GPS_BAUD, timeout=1)
     print("[gps] baglandi")
+    with _serial_write_lock:
+        _gps_serial_ref["ser"] = ser
     try:
         while True:
             frame = _read_ubx_frame(ser)
@@ -286,7 +310,67 @@ def _gps_loop_inner(wrapper: UkFilterWrapper) -> None:
             cls_id, msg_id, payload = frame
             _handle_gps_frame(wrapper, cls_id, msg_id, payload)
     finally:
+        with _serial_write_lock:
+            if _gps_serial_ref["ser"] is ser:
+                _gps_serial_ref["ser"] = None
         ser.close()
+
+
+# ── NTRIP client (RTK düzeltmeleri -> GPS seri portuna RTCM3 enjeksiyonu) ─────
+
+def ntrip_loop() -> None:
+    while True:
+        try:
+            _ntrip_loop_inner()
+        except (OSError, socket.timeout) as e:
+            print(f"\n[ntrip] hata, 5s sonra yeniden baglaniliyor: {e}")
+            time.sleep(5.0)
+
+
+def _ntrip_loop_inner() -> None:
+    auth = base64.b64encode(f"{NTRIP_USERNAME}:{NTRIP_PASSWORD}".encode()).decode()
+    request = (
+        f"GET /{NTRIP_MOUNTPOINT} HTTP/1.1\r\n"
+        f"Host: {NTRIP_HOST}:{NTRIP_PORT}\r\n"
+        f"Ntrip-Version: Ntrip/2.0\r\n"
+        f"User-Agent: NTRIP ukf_direct_ros/1.0\r\n"
+        f"Authorization: Basic {auth}\r\n"
+        f"Connection: close\r\n"
+        f"\r\n"
+    )
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(10.0)
+    sock.connect((NTRIP_HOST, NTRIP_PORT))
+    sock.sendall(request.encode())
+
+    # Yanit basliklarini oku (bos satira kadar) -- ardindan gelen her sey RTCM3 binary akisi.
+    header_buf = b""
+    while b"\r\n\r\n" not in header_buf and len(header_buf) < 4096:
+        chunk = sock.recv(1)
+        if not chunk:
+            raise OSError("NTRIP baglantisi basliklardan once kapandi")
+        header_buf += chunk
+    header_text = header_buf.decode(errors="replace").splitlines()[0] if header_buf else ""
+    if "200" not in header_text and "ICY" not in header_text:
+        raise OSError(f"NTRIP sunucusu beklenmeyen yanit verdi: {header_text!r}")
+    print(f"[ntrip] baglandi ({NTRIP_HOST}:{NTRIP_PORT}/{NTRIP_MOUNTPOINT}): {header_text}")
+
+    sock.settimeout(15.0)
+    bytes_forwarded = 0
+    last_log = time.monotonic()
+    while True:
+        data = sock.recv(4096)
+        if not data:
+            raise OSError("NTRIP baglantisi kapandi")
+        with _serial_write_lock:
+            ser = _gps_serial_ref["ser"]
+            if ser is not None:
+                ser.write(data)
+        bytes_forwarded += len(data)
+        if time.monotonic() - last_log > 5.0:
+            print(f"\n[ntrip] {bytes_forwarded} byte RTCM GPS'e yazildi (toplam)")
+            last_log = time.monotonic()
 
 
 def _handle_gps_frame(wrapper: UkFilterWrapper, cls_id: int, msg_id: int, payload: bytes) -> None:
@@ -657,6 +741,7 @@ def main() -> None:
     threading.Thread(target=imu_loop, args=(wrapper,), daemon=True).start()
     threading.Thread(target=can_read_loop, args=(wrapper,), daemon=True).start()
     threading.Thread(target=can_write_loop, daemon=True).start()
+    threading.Thread(target=ntrip_loop, daemon=True).start()
 
     print(
         "UKF dogrudan-donanim modunda calisiyor. roslibpy ile "
