@@ -43,11 +43,16 @@ def generate_launch_description():
 
     # Nav2'nin resmi composition tavsiyesi: tüm server'ları ayrı process
     # değil, TEK component container içinde composable node olarak çalıştır.
-    # Bu, node'lar arası DDS serileştirme overhead'ini intra-process
-    # communication ile ortadan kaldırır ve process-level context-switch
-    # yükünü azaltır — Jetson gibi CPU kısıtlı donanımda önemli kazanç
-    # (https://docs.nav2.org/tuning/index.html). respawn/use_respawn artık
-    # yok: tek bir component crash olursa tüm container etkilenir, bu
+    # Bu, process-level context-switch yükünü ve ayrı DDS participant
+    # sayısını azaltır — Jetson gibi CPU kısıtlı donanımda kazanç
+    # (https://docs.nav2.org/tuning/index.html). use_intra_process_comms
+    # KASITLI OLARAK kapalı: bazı node'lar (örn. smoother_server,
+    # costmap'lerin /map static_layer aboneliği) transient_local
+    # durability kullanıyor, ROS2'nin intra-process comms'i SADECE
+    # volatile durability'yi destekliyor — açarsak "intraprocess
+    # communication allowed only with volatile durability" hatasıyla
+    # lifecycle bringup tamamen patlıyor. respawn/use_respawn artık yok:
+    # tek bir component crash olursa tüm container etkilenir, bu
     # composition'ın bilinen tradeoff'u — container'ın kendisi
     # respawn=true ile yeniden başlar.
     composable_nodes = [
@@ -56,62 +61,53 @@ def generate_launch_description():
             name='controller_server',
             parameters=[configured_params],
             remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
-            extra_arguments=[{'use_intra_process_comms': True}],
         ),
         ComposableNode(
             package='nav2_smoother', plugin='nav2_smoother::SmootherServer',
             name='smoother_server',
             parameters=[configured_params],
             remappings=remappings,
-            extra_arguments=[{'use_intra_process_comms': True}],
         ),
         ComposableNode(
             package='nav2_planner', plugin='nav2_planner::PlannerServer',
             name='planner_server',
             parameters=[configured_params],
             remappings=remappings,
-            extra_arguments=[{'use_intra_process_comms': True}],
         ),
         ComposableNode(
             package='nav2_behaviors', plugin='behavior_server::BehaviorServer',
             name='behavior_server',
             parameters=[configured_params],
             remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
-            extra_arguments=[{'use_intra_process_comms': True}],
         ),
         ComposableNode(
             package='nav2_bt_navigator', plugin='nav2_bt_navigator::BtNavigator',
             name='bt_navigator',
             parameters=[configured_params],
             remappings=remappings,
-            extra_arguments=[{'use_intra_process_comms': True}],
         ),
         ComposableNode(
             package='nav2_waypoint_follower', plugin='nav2_waypoint_follower::WaypointFollower',
             name='waypoint_follower',
             parameters=[configured_params],
             remappings=remappings,
-            extra_arguments=[{'use_intra_process_comms': True}],
         ),
         ComposableNode(
             package='nav2_velocity_smoother', plugin='nav2_velocity_smoother::VelocitySmoother',
             name='velocity_smoother',
             parameters=[configured_params],
             remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
-            extra_arguments=[{'use_intra_process_comms': True}],
         ),
         ComposableNode(
             package='nav2_collision_monitor', plugin='nav2_collision_monitor::CollisionMonitor',
             name='collision_monitor',
             parameters=[configured_params],
             remappings=remappings,
-            extra_arguments=[{'use_intra_process_comms': True}],
         ),
         ComposableNode(
             package='nav2_lifecycle_manager', plugin='nav2_lifecycle_manager::LifecycleManager',
             name='lifecycle_manager_navigation',
             parameters=[{'autostart': autostart}, {'node_names': lifecycle_nodes}],
-            extra_arguments=[{'use_intra_process_comms': True}],
         ),
     ]
 
