@@ -73,7 +73,7 @@ def generate_launch_description():
             extra_arguments=[{'use_intra_process_comms': True}],
         ),
         ComposableNode(
-            package='nav2_behaviors', plugin='nav2_behaviors::BehaviorServer',
+            package='nav2_behaviors', plugin='behavior_server::BehaviorServer',
             name='behavior_server',
             parameters=[configured_params],
             remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
