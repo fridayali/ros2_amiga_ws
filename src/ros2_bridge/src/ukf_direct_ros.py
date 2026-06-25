@@ -102,6 +102,10 @@ CMD_VEL_TIMEOUT_S = 0.5   # dead-man's switch: bu sureden uzun /cmd_vel gelmezse
 MAX_SPEED = 0.5           # m/s hard cap (guvenlik)
 MAX_ANGULAR = 0.5         # rad/s hard cap
 
+# UKF GPS olcum gurultusu ayari -- bkz. SingleAntennaUkFilterWrapper.handle_gps
+GPS_STD_DEV_SCALE = 0.5   # hAcc'in carpani: dusuk = filtre GPS'e daha cok guvenir (daha hizli yakinsama, biraz daha titrek)
+RTK_MIN_STD_DEV_M = 0.01  # sayisal guvenlik alt siniri (RTK ile hAcc ~0'a yaklasinca)
+
 # NOT: headMot (GPS course-over-ground) heading icin KULLANILMIYOR.
 # headMot, aracin burnunun yonunu degil GPS noktasinin hareket yonunu verir --
 # arac geri giderken bu 180 derece ters cikar (gercek filter servisi de bu
@@ -156,7 +160,14 @@ class SingleAntennaUkFilterWrapper(UkFilterWrapper):
         self.last_gps_stamp = message.stamp.stamp
         relpos = compute_relative_position(self.gps_anchor_antenna, message)
         measurement = np.array([relpos[0], relpos[1]])
-        std_dev = np.array([message.horizontal_accuracy, message.horizontal_accuracy])
+        # NOT: hAcc'i oldugu gibi degil, GPS_STD_DEV_SCALE ile carpip kullaniyoruz --
+        # filtreye GPS'e raporlanandan biraz daha fazla guven (daha hizli
+        # drift-duzeltme), RTK_MIN_STD_DEV_M ise sayisal guvenlik icin alt sinir
+        # (hAcc RTK ile ~1-2cm'e dustugunde sifira yakin std_dev Kalman gain'i
+        # bozabilir). RTK geldiginde hAcc kucalecegi icin bu carpan otomatik
+        # olarak daha siki takip verir, yeniden ayara gerek kalmaz.
+        hacc = max(message.horizontal_accuracy * GPS_STD_DEV_SCALE, RTK_MIN_STD_DEV_M)
+        std_dev = np.array([hacc, hacc])
 
         if not self.is_stationary and self.last_gps_stamp is not None:
             self.step_process(self.last_gps_stamp)
