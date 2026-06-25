@@ -67,6 +67,30 @@ from ukf_wrapper import UkFilterWrapper  # noqa: E402
 
 ROBOT_CONFIG_PATH = "/mnt/service_config/robot_config.json"
 
+# gps_filter.py'deki AYNI sabit anchor -- /rtk/odom'un pozisyonu BUNA göre
+# hesaplanir, UKF'in kendi (NWU, pose.translation) cikisina göre DEGIL.
+# NEDEN: farm_ng.track.utils.compute_relative_position NWU (north,-east,-down)
+# dönüyor; se2_filter.step_gps_pos_measurement de bu [north,west] ölçümle
+# besleniyor, yani UKF'in world_from_robot.translation.x/y'si ENU (x=doğu,
+# y=kuzey) DEGIL. gps_filter.py bunu zaten biliyordu ve pose.translation'ı
+# hiç kullanmiyordu, heading'i filtreden alip pozisyonu ham GPS lat/lon'dan
+# kendi ENU projeksiyonuyla hesapliyordu -- ayni korumayi burada da
+# uyguluyoruz.
+DEFAULT_ANCHOR_LAT_DEG = 39.796011
+DEFAULT_ANCHOR_LON_DEG = 32.531534
+EARTH_RADIUS_M = 6378137.0
+
+
+def latlon_to_local_xy(lat_deg: float, lon_deg: float, anchor_lat_deg: float, anchor_lon_deg: float) -> tuple[float, float]:
+    """WGS84 lat/lon'u sabit anchor'a göre yerel ENU (x=doğu, y=kuzey) metreye çevirir."""
+    anchor_lat_rad = math.radians(anchor_lat_deg)
+    dlat = math.radians(lat_deg - anchor_lat_deg)
+    dlon = math.radians(lon_deg - anchor_lon_deg)
+    x_east = dlon * math.cos(anchor_lat_rad) * EARTH_RADIUS_M
+    y_north = dlat * EARTH_RADIUS_M
+    return x_east, y_north
+
+
 GPS_PORT, GPS_BAUD = "/dev/ttyACM0", 38400
 OAK_IP = "10.95.76.11"  # NOT: ag uzerinde 10.95.76.10 ve .11 de gorulebilir --
                          # dai.Device.getAllAvailableDevices() ile dogrula, gerekirse degistir.
@@ -538,32 +562,39 @@ def ros_loop(wrapper: UkFilterWrapper, rate_hz: float = 10.0) -> None:
                 can_twist = dict(_last_can_twist)
                 anchor = wrapper.gps_anchor_antenna
 
-            pose = state.pose.a_from_b
             yaw_enu = filter_heading_to_enu_yaw(state.heading)
             now = ros_now()
 
-            odom_pub.publish(roslibpy.Message({
-                "header": {"stamp": now, "frame_id": "map"},
-                "child_frame_id": "base_link",
-                "pose": {
+            if raw_gps["lat_deg"] is not None:
+                # NOT: UKF'in pose.translation'i NWU, dogrudan ENU x/y olarak
+                # KULLANILMIYOR (bkz. DEFAULT_ANCHOR_LAT_DEG yorumu). Pozisyon
+                # ham GPS lat/lon'dan, gps_filter.py ile AYNI sabit anchor'a
+                # göre hesaplaniyor; heading hala UKF'ten (gyro+wheel-odom
+                # füzyonu, GPS'ten cok daha az gürültülü).
+                x_east, y_north = latlon_to_local_xy(
+                    raw_gps["lat_deg"], raw_gps["lon_deg"],
+                    DEFAULT_ANCHOR_LAT_DEG, DEFAULT_ANCHOR_LON_DEG,
+                )
+                odom_pub.publish(roslibpy.Message({
+                    "header": {"stamp": now, "frame_id": "map"},
+                    "child_frame_id": "base_link",
                     "pose": {
-                        "position": {
-                            "x": float(pose.translation.x),
-                            "y": float(pose.translation.y),
-                            "z": 0.0,
+                        "pose": {
+                            "position": {"x": x_east, "y": y_north, "z": 0.0},
+                            "orientation": yaw_to_quaternion(yaw_enu),
                         },
-                        "orientation": yaw_to_quaternion(yaw_enu),
+                        "covariance": [0.0] * 36,
                     },
-                    "covariance": [0.0] * 36,
-                },
-                "twist": {
                     "twist": {
-                        "linear": {"x": can_twist["linear_x"], "y": 0.0, "z": 0.0},
-                        "angular": {"x": 0.0, "y": 0.0, "z": can_twist["angular_z"]},
+                        "twist": {
+                            "linear": {"x": can_twist["linear_x"], "y": 0.0, "z": 0.0},
+                            "angular": {"x": 0.0, "y": 0.0, "z": can_twist["angular_z"]},
+                        },
+                        "covariance": [0.0] * 36,
                     },
-                    "covariance": [0.0] * 36,
-                },
-            }))
+                }))
+            else:
+                x_east, y_north = 0.0, 0.0
 
             if raw_gps["lat_deg"] is not None:
                 fix_pub.publish(roslibpy.Message({
@@ -593,7 +624,7 @@ def ros_loop(wrapper: UkFilterWrapper, rate_hz: float = 10.0) -> None:
             with _cmd_lock:
                 auto_mode = _cmd_state["auto_mode"]
             print(
-                f"\r[ros] x={pose.translation.x:+7.3f} y={pose.translation.y:+7.3f} "
+                f"\r[ros] x={x_east:+7.3f} y={y_north:+7.3f} "
                 f"yaw_enu={math.degrees(yaw_enu):6.1f}°  auto_mode={auto_mode}  "
                 f"lat={raw_gps['lat_deg']}  lon={raw_gps['lon_deg']}      ",
                 end="", flush=True,
